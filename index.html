@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SEMInsight | From electron gun to pixel</title>
+  <meta name="description" content="Scroll through a Schottky field-emission scanning electron microscope: follow the beam from the emitter through the column to the specimen, the detectors and the final image, then operate a physically-based virtual SEM.">
+  <meta name="theme-color" content="#252423">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23252423'/%3E%3Cpath d='M16 4v9l-6 15h12l-6-15' fill='none' stroke='%238fe9ff' stroke-width='2'/%3E%3Ccircle cx='16' cy='13' r='2.5' fill='%23ff4b4b'/%3E%3C/svg%3E">
+</head>
+<body>
+  <canvas id="gl" aria-hidden="true"></canvas>
+  <div id="labels" aria-hidden="true"></div>
+
+  <header id="top">
+    <a class="logo" href="#hero" aria-label="SEMInsight home"><b>SEM</b>Insight</a>
+    <nav>
+      <a href="#journey">Journey</a>
+      <a href="#lab">Virtual SEM</a>
+      <a href="#index">Index</a>
+      <a href="#refs">References</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="hero">
+      <div class="hero-text">
+        <h1><span>From electron</span> <span>gun to</span> <span>pixel.</span></h1>
+        <p class="lede">Follow one beam through a Schottky field-emission scanning electron microscope: emitted, accelerated, focused, scanned, scattered, detected and digitised.</p>
+        <div class="chips">
+          <span class="chip"><b>15</b> stages</span>
+          <span class="chip">live Monte Carlo</span>
+          <a class="chip cta" href="#lab">Virtual SEM ↓</a>
+        </div>
+      </div>
+      <div class="scroll-hint"><span>Scroll</span><i></i></div>
+    </section>
+
+    <div id="journey"></div>
+
+    <section id="lab">
+      <div class="lab-head">
+        <p class="kicker"><b>16</b> / Operate it</p>
+        <h2>Virtual SEM</h2>
+        <p>Every control acts through the physics from the journey: the aberration budget sets the blur, the dose sets the shot noise, yield curves set the contrast and the charge balance decides whether an insulator behaves.</p>
+      </div>
+      <div id="vsem"></div>
+      <p class="lab-foot">Model: SE yield from the Lin–Joy universal curve with a sec θ tilt law and BSE-generated SE2 delocalised over the backscatter escape radius; BSE coefficient from Reuter’s fit; probe diameter from source, spherical, chromatic and diffraction terms in quadrature; Poisson noise from electrons per pixel. Specimens are procedural. It is a teaching model, not a metrology simulator.</p>
+    </section>
+
+    <section id="index">
+      <div class="index-inner">
+        <h2>Revisit a stage</h2>
+        <p>Jump straight to any part of the column.</p>
+        <div id="index-grid"></div>
+      </div>
+    </section>
+
+    <footer id="refs">
+      <div>
+        <h3>References</h3>
+        <ol>
+          <li>J. I. Goldstein et al., <i>Scanning Electron Microscopy and X-Ray Microanalysis</i>, 4th ed., Springer, 2018.</li>
+          <li>L. Reimer, <i>Scanning Electron Microscopy: Physics of Image Formation and Microanalysis</i>, 2nd ed., Springer, 1998.</li>
+          <li>D. C. Joy, <i>Monte Carlo Modeling for Electron Microscopy and Microanalysis</i>, Oxford University Press, 1995.</li>
+          <li>K. Kanaya and S. Okayama, “Penetration and energy-loss theory of electrons in solid targets”, <i>J. Phys. D</i> 5, 43 (1972).</li>
+          <li>Y. Lin and D. C. Joy, “A new examination of secondary electron yield data”, <i>Surf. Interface Anal.</i> 37, 895 (2005).</li>
+          <li>G. D. Danilatos, “Foundations of environmental scanning electron microscopy”, <i>Adv. Electron. Electron Phys.</i> 71, 109 (1988).</li>
+          <li>A. J. Schwartz et al. (eds.), <i>Electron Backscatter Diffraction in Materials Science</i>, 2nd ed., Springer, 2009.</li>
+        </ol>
+      </div>
+      <div class="foot-meta">
+        <p class="logo"><b>SEM</b>Insight</p>
+        <p>Beam radii, scan amplitudes and particle counts in the 3D view are exaggerated for visibility; every number in the readouts is computed from the stated equations.</p>
+        <p>Built with Three.js and anime.js.</p>
+      </div>
+    </footer>
+  </main>
+
+  <aside id="hud" aria-live="off">
+    <div class="hud-panel">
+      <div class="hud-head"><span class="hud-n">01</span><span class="hud-k"></span><button type="button" class="hud-toggle" aria-label="Toggle details" aria-expanded="true">–</button></div>
+      <div class="hud-read"></div>
+      <div class="hud-ctl" hidden></div>
+      <div class="hud-more">
+        <div class="hud-eq"></div>
+        <p class="hud-note"></p>
+        <p class="hud-pt"></p>
+        <canvas class="hud-plot"></canvas>
+      </div>
+    </div>
+    <div class="scrub" role="navigation" aria-label="Stages"></div>
+  </aside>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
