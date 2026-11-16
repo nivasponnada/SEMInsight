@@ -219,3 +219,21 @@ footer ol { padding-left: 1.3em; font-size: 14px; color: #cfc9c2; display: grid;
   .vs-sliders { grid-template-columns: 1fr; }
   footer { grid-template-columns: 1fr; }
 }
+
+/* ---------- suite additions */
+.hero-k a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--line); }
+.hero-k a:hover { color: var(--fg); }
+.see { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.see a { font: 400 11px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--accent); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); padding-bottom: 2px; }
+.see a:hover { border-color: var(--accent); }
+.other-h { margin-top: 34px; }
+#other-grid { margin-top: 10px; display: grid; grid-template-columns: 1fr; border-top: 1px solid var(--line); }
+#other-grid a { display: grid; grid-template-columns: 9em 1fr; gap: 12px; padding: 12px 6px 12px 0; border-bottom: 1px solid var(--line); text-decoration: none; color: var(--dim); font: 400 11px var(--mono); letter-spacing: .07em; text-transform: uppercase; transition: color .15s, padding .2s; }
+#other-grid a b { color: var(--accent); font-weight: 500; }
+#other-grid a:hover, #other-grid a:focus-visible { color: var(--fg); padding-left: 8px; }
+footer a { color: inherit; }
+.vs-plot { display: block; width: 100%; height: auto; background: #151413; }
+.vs-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.vs-two figure { margin: 0; min-width: 0; }
+.vs-two figcaption, .vs-cap { font: 400 10px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--dim); padding: 6px 0 0; }
+.vs-two canvas { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 6px; background: #000; }

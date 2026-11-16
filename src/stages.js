@@ -6,13 +6,14 @@ import {
 } from './physics.js';
 import { drawStigmator, drawScan, drawKikuchi, drawLineScan, edsSpectrum } from './plots.js';
 
-const fr = (a, b) => `<span class="fr"><span>${a}</span><span>${b}</span></span>`;
-const rt = (x) => `<span class="rt">√<span>${x}</span></span>`;
+const FR = (a, b) => `<span class="fr"><span>${a}</span><span>${b}</span></span>`;
+const RT = (x) => `<span class="rt">√<span>${x}</span></span>`;
 const lerp = (a, b, t) => a + (b - a) * t;
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const L = (m) => fmtLen(m);
 
 export const SIG = { beam: '#8fe9ff', se: '#ffc730', bse: '#ff4b4b', xray: '#b08cff', light: '#b7ff54' };
+export const fr = FR, rt = RT;
 
 // Optimum-aperture probe size for a given set of conditions.
 function bestProbe(V, Ip, Cs, Cc) {

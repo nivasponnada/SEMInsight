@@ -1,8 +1,16 @@
-# SEMInsight
+# Characterisation techniques
 
-A scroll-driven walkthrough of a Schottky field-emission scanning electron microscope:
-the beam is followed from the emitter through the column to the specimen, the detectors,
-the signal chain and the final image, and the page ends in a physically-based virtual SEM.
+Four scroll-driven journeys through materials and device characterisation, sharing one design
+language and one engine. Each follows the probe from its source to the final number with live
+readouts, equations and plots, and ends in a virtual instrument.
+
+| Page | Module | Virtual instrument |
+| --- | --- | --- |
+| `index.html` | Hub: the four techniques, a comparison table and a question-to-technique matrix | |
+| `sem.html` | Scanning electron microscopy (15 stages) | Virtual SEM: image model with shot noise and charging |
+| `tem.html` | Transmission electron microscopy (12 stages) | Virtual TEM: phase-object simulation with a live CTF |
+| `xrd.html` | X-ray diffraction (10 stages) | Virtual diffractometer: structure-factor patterns, Williamson–Hall |
+| `semiconductor.html` | Semiconductor characterisation (10 stages) | Virtual probe station: 4PP + Hall, MOS C–V, p–n I–V |
 
 ## Run
 
@@ -17,16 +25,17 @@ Pushing to `main` builds and deploys `dist/` with the workflow in `.github/workf
 
 ## Layout
 
-| File | Purpose |
+| Path | Purpose |
 | --- | --- |
-| `src/stages.js` | The 15 stages: copy, live readouts, equations, plots, camera and label choreography |
-| `src/column.js` | Three.js scene: half-sectioned column, beam envelope, signal particles |
-| `src/physics.js` | Constants and closed-form models (wavelength, probe size, yields, ranges) |
-| `src/montecarlo.js` | Single-scattering Monte Carlo (screened Rutherford + Joy–Luo stopping power) |
-| `src/sem-image.js` | Image model: specimens, SE/BSE signal, probe blur, shot noise, charging |
-| `src/sandbox.js` | Virtual SEM controls and scan loop |
-| `src/plots.js` | Canvas plots for the readout panel (incl. computed Kikuchi pattern, EDS spectrum) |
-| `src/main.js` | Scroll state, HUD, labels |
+| `src/core/engine.js` | Builds a module page from a config; maps scroll to stage keyframes; HUD and labels |
+| `src/core/scene3d.js` | Three.js base: renderer, materials, sectioned solids of revolution, beams, particles |
+| `src/core/panel.js`, `src/core/modules.js` | Control-panel builder; module registry used for cross-links |
+| `src/pages/*.js` | One entry per page (hub, sem, tem, xrd, semi) |
+| `src/stages.js`, `src/column.js`, `src/sem-image.js`, `src/sandbox.js`, `src/montecarlo.js` | SEM module |
+| `src/tem/` | TEM stages, column scene, FFT image simulation, virtual TEM |
+| `src/xrd/` | XRD stages, goniometer scene, pattern calculation, virtual diffractometer |
+| `src/semi/` | Semiconductor stages, probe-station scene, device physics, virtual probe station |
+| `src/physics.js`, `src/plots.js` | Shared constants, electron-optics formulas and canvas plots |
 
-Beam radii, scan amplitudes and particle counts in the 3D view are exaggerated for visibility.
-The virtual SEM is a teaching model, not a metrology simulator.
+Beam widths, scan amplitudes, slit openings and device cross-sections in the 3D views are
+exaggerated or schematic. The virtual instruments are teaching models, not calibrated simulators.
