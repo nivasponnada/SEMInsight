@@ -1,6 +1,7 @@
 // Wafer journey: the device cross-section being built at the origin, and one process tool
 // (or wafer-level object) at a time in the "bay" at BAY. Geometry is schematic and not to scale.
 import { Scene3D, THREE, V3, lerp, TAU, SIG } from '../core/scene3d.js';
+import { IW, IH, VARIANTS, drawInset } from './insets.js';
 
 export const BAY = [40, 0, 0];
 const B = (x, y, z) => [BAY[0] + x, BAY[1] + y, BAY[2] + z];
@@ -41,10 +42,10 @@ export const VIEW = {
     cz: close([2.6, 2.6, 7], [0.3, 1.9, 0]),
     saw: close([2.4, 3.2, 6.5], [0.2, 2.3, 0.3]),
     wafer: close([1.5, 2.2, 5.5], [0.6, 1.05, 0.8]),
-    dep: close([2.2, 2.4, 6.2], [0.3, 1.7, 0]),
-    euv: close([2.6, 3.6, 10.5], [1.2, 2.9, 0]),
-    etch: close([2.2, 2.4, 6.2], [0.3, 1.7, 0]),
-    cmp: close([2.6, 2.8, 6.2], [0.7, 1.55, 0.2]),
+    dep: close([2.7, 3.0, 6.8], [1.9, 2.4, 0.4]),
+    euv: close([3.0, 3.2, 9.0], [1.9, 2.5, 0]),
+    etch: close([2.7, 3.0, 6.8], [1.9, 2.4, 0.4]),
+    cmp: close([2.6, 3.2, 7.0], [1.5, 2.0, 0.5]),
     bond: close([2.4, 2.2, 6.4], [0.3, 1.4, 0.3]),
     grind: close([2.6, 2.6, 6.4], [0.6, 1.45, 0.2]),
     insp: close([2.4, 2.2, 6], [0.3, 1.5, 0.2]),
@@ -61,15 +62,15 @@ export const TOOL_LABELS = {
   cz: [['SEED + PULL ROD', B(0.05, 5.6, 0)], ['GROWING INGOT', B(0.55, 3.0, 0)], ['MOLTEN SILICON · 1414 °C', B(0.9, 1.6, 0)], ['GRAPHITE HEATER', B(1.6, 1.2, 0), 'd']],
   saw: [['INGOT', B(1.6, 2.6, 0.9)], ['DIAMOND WIRE WEB', B(-0.6, 3.25, 1.7)], ['WIRE GUIDE', B(2.0, 3.2, -1.9)]],
   wafer: [['300 mm · 775 µm', B(2.1, 1.05, 2.1)], ['ORIENTATION NOTCH', B(0, 1.05, 3.0), 'd']],
-  dep: [['SHOWERHEAD', B(1.7, 2.7, 0)], ['PRECURSOR GAS', B(0.4, 2.0, 0)], ['WAFER ON HEATED PEDESTAL', B(1.5, 1.04, 0), 'd']],
-  euv: [['TIN-DROPLET PLASMA SOURCE', B(-3.6, 1.2, 0), 'd'], ['ILLUMINATOR MIRRORS', B(-2.0, 3.6, 0)], ['REFLECTIVE RETICLE', B(0.2, 5.2, 0)], ['WAFER STAGE', B(2.9, 0.72, 0), 'd']],
-  etch: [['INDUCTIVE COIL', B(2.45, 2.9, 0)], ['PLASMA', B(0.6, 1.9, 0)], ['BIASED CHUCK', B(1.6, 0.8, 0), 'd']],
-  cmp: [['CARRIER HEAD', B(0.9, 2.3, 0.3)], ['POLISHING PAD ON PLATEN', B(2.2, 1.22, 1.0), 'd'], ['SLURRY ARM', B(-1.6, 2.05, -0.5)]],
+  dep: [['SHOWERHEAD', B(-1.7, 2.7, 0)], ['PRECURSOR GAS', B(-0.6, 2.0, 0)], ['WAFER ON HEATED PEDESTAL', B(-1.5, 1.04, 0), 'd'], ['SURFACE, MAGNIFIED', B(2.9, 3.95, 0.9)]],
+  euv: [['TIN PLASMA + COLLECTOR MIRROR', B(-3.6, 1.2, 0), 'd'], ['INTERMEDIATE FOCUS', B(-1.85, 1.2, 0)], ['ILLUMINATOR MIRRORS', B(-1.5, 3.3, 0)], ['REFLECTIVE RETICLE', B(0.9, 5.2, 0)], ['WAFER STAGE', B(3.2, 0.66, 0), 'd']],
+  etch: [['INDUCTIVE COIL', B(-2.45, 2.9, 0)], ['PLASMA', B(-0.6, 1.9, 0)], ['BIASED CHUCK', B(-1.6, 0.8, 0), 'd'], ['SURFACE, MAGNIFIED', B(2.9, 3.95, 0.9)]],
+  cmp: [['CARRIER HEAD ON ITS SPINDLE', B(0.9, 1.9, 0.3)], ['PAD ON ROTATING PLATEN', B(1.4, 1.22, 1.9), 'd'], ['SLURRY NOZZLE', B(-1.0, 2.35, -0.4)], ['PAD CONDITIONER', B(-0.1, 1.36, -1.45)]],
   bond: [['CARRIER WAFER', B(1.9, 2.6, 0.9)], ['DEVICE WAFER', B(2.0, 1.06, 0.9), 'd']],
   grind: [['GRINDING WHEEL', B(1.9, 1.75, 0.6)], ['DEVICE WAFER, BACK UP', B(-1.2, 1.3, 1.7), 'd'], ['CARRIER', B(2.1, 1.05, 0.8), 'd']],
   insp: [['ELECTRON COLUMN', B(0.55, 3.4, 0)], ['SCANNED BEAM', B(0.03, 1.7, 0)], ['WAFER STAGE', B(2.0, 1.04, 1.0), 'd']],
   probe: [['TEST HEAD', B(1.3, 3.1, 0.9)], ['PROBE CARD', B(1.6, 2.0, 0.6)], ['WAFER ON CHUCK', B(2.0, 1.04, 1.0), 'd']],
-  dice: [['LASER HEAD', B(0.5, 3.0, 0.5)], ['DICING STREETS', B(1.5, 1.05, 1.5), 'd'], ['TAPE FRAME', B(2.75, 1.0, 0.5), 'd']],
+  dice: [['LASER GANTRY', B(1.8, 3.5, -0.6)], ['CUT FOLLOWS THE STREETS', B(-1.26, 1.06, 1.2), 'd'], ['TAPE FRAME', B(2.75, 1.0, 0.5), 'd']],
   pack: [['LID', B(1.45, 3.35, 1.45)], ['LOGIC DIE + MEMORY STACK', B(0.2, 2.5, 0.7)], ['SILICON INTERPOSER', B(1.3, 1.8, 1.3)], ['PACKAGE SUBSTRATE', B(1.6, 0.95, 1.6), 'd']],
   test: [['HANDLER ARM', B(0.5, 3.0, 0)], ['TEST SOCKET', B(0.9, 1.5, 0.9), 'd'], ['LOAD BOARD', B(2.0, 1.02, 1.3), 'd']],
 };
@@ -78,15 +79,15 @@ export const CLOSE_LABELS = {
   cz: [['MENISCUS · GROWTH FRONT', B(0.55, 1.62, 0)], ['QUARTZ CRUCIBLE', B(1.25, 1.3, 0), 'd']],
   saw: [['WIRE · 60–100 µm', B(0.3, 2.9, 0.9)], ['KERF LOSS', B(0.9, 2.2, 0.9), 'd']],
   wafer: [['MIRROR POLISH · Ra < 0.1 nm', B(0.6, 1.05, 0.9)]],
-  dep: [['GAS-PHASE TRANSPORT', B(0.3, 2.1, 0)], ['SURFACE REACTION', B(0.5, 1.05, 0), 'd']],
-  euv: [['RETICLE · 4× PATTERN', B(0.2, 5.2, 0)], ['PROJECTION MIRRORS', B(1.5, 3.6, 0)], ['13.5 nm ONTO RESIST', B(2.2, 0.76, 0), 'd']],
-  etch: [['IONS ACCELERATED ACROSS THE SHEATH', B(0.4, 1.5, 0)], ['WAFER', B(1.4, 1.04, 0), 'd']],
-  cmp: [['WAFER, FACE DOWN', B(0.9, 1.47, 1.15), 'd'], ['SLURRY FILM', B(0.0, 1.22, 0.9), 'd']],
+  dep: [['WHAT THE WAFER SURFACE SEES', B(2.9, 3.95, 0.9)], ['WAFER', B(1.3, 1.05, 0.2), 'd']],
+  euv: [['SIX PROJECTION MIRRORS', B(2.9, 3.1, 0)], ['FINAL MIRROR FOCUSES THE CONE', B(1.2, 1.55, 0)], ['FOCUS ON THE RESIST', B(2.3, 0.71, 0), 'd']],
+  etch: [['WHAT THE WAFER SURFACE SEES', B(2.9, 3.95, 0.9)], ['WAFER', B(1.3, 1.05, 0.2), 'd']],
+  cmp: [['WAFER, FACE DOWN', B(0.9, 1.32, 1.2), 'd'], ['WHAT THE PAD DOES', B(2.9, 4.15, 1.2)]],
   bond: [['OXIDE-TO-OXIDE CONTACT', B(0.4, 1.1, 1.0), 'd']],
   grind: [['SILICON REMOVED', B(0.9, 1.4, 0.9), 'd']],
   insp: [['SECONDARY ELECTRONS TO DETECTOR', B(0.45, 1.5, 0.2)], ['DIE UNDER INSPECTION', B(0.03, 1.05, 0.05), 'd']],
   probe: [['TUNGSTEN NEEDLES', B(0.25, 1.45, 0.3)], ['BOND PADS', B(0.3, 1.05, 0.35), 'd']],
-  dice: [['SINGULATED DIE', B(0.42, 1.5, 0.42)], ['CUT STREET', B(0.84, 1.05, 0.3), 'd']],
+  dice: [['PICK-UP COLLET', B(0.21, 2.3, 0.21)], ['SINGULATED DIE', B(0.42, 1.08, 0.3), 'd'], ['KERF', B(0.84, 1.06, -0.4), 'd']],
   pack: [['LID OVER THE DIES', B(1.2, 1.75, 1.5)], ['BALL GRID TO THE BOARD', B(1.44, 0.55, 1.44), 'd']],
   test: [['PACKAGED CHIP', B(0.4, 1.75, 0.4)], ['SPRING PINS', B(0.5, 1.4, 0.7), 'd']],
 };
@@ -136,9 +137,12 @@ export class FabScene extends Scene3D {
       // the block is sectioned at x = XCUT, through the middle of the second gate
       if (x0 >= XCUT) return;
       x1 = Math.min(x1, XCUT + (o.face || 0));
-      const mesh = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0), mat);
+      // transparent parts are shrunk a hair so their faces never coincide with a neighbour's (no z-fighting),
+      // and get a fixed draw order so the blend order cannot change as the camera moves
+      const e = mat.transparent ? 0.006 : 0;
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0 - 2 * e, y1 - y0 - 2 * e, z1 - z0 - 2 * e), mat);
       mesh.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
-      if (mat.transparent) mesh.renderOrder = 3;
+      if (mat.transparent) mesh.renderOrder = 3 + this.els.length * 0.002;
       D.add(mesh); this.els.push({ mesh, y0, y1, on, off, ...o });
     };
     const FZ = [0.9, -0.9], G = [-1.2, 1.2], SD = [[-3, -1.6], [-0.8, 0.8], [1.6, 3]], T = 0.14;
@@ -192,8 +196,9 @@ export class FabScene extends Scene3D {
     for (const e of this.els) {
       let w = 1, vis = true;
       const d = b - (e.on - 1);
-      if (e.on > 0) { if (e.swapOn) vis = d >= 0.5; else w = e.seq ? sm(d * e.seq[1] - e.seq[0]) : sm(d); }
-      if (e.off < 99) { const q = b - (e.off - 1); if (e.swapOff) vis = vis && q < 0.5; else w *= 1 - sm(q); }
+      // swaps happen right at the start of the step, while the camera is still on the tool
+      if (e.on > 0) { if (e.swapOn) vis = d >= 0.12; else w = e.seq ? sm(d * e.seq[1] - e.seq[0]) : sm(d); }
+      if (e.off < 99) { const q = b - (e.off - 1); if (e.swapOff) vis = vis && q < 0.12; else w *= 1 - sm(q); }
       const h = e.y1 - e.y0;
       if (e.drop) { e.mesh.visible = vis && w > 0.01; e.mesh.position.y = (e.y0 + e.y1) / 2 + (1 - w) * e.drop; continue; }
       e.mesh.visible = vis && w > 0.01;
@@ -217,6 +222,23 @@ export class FabScene extends Scene3D {
     const l = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color, transparent: true, opacity: op })); g.add(l);
     return w;
   }
+  /** Open truncated cone of light between two points (radius ra at a, rb at b). */
+  _cone(a, b, ra, rb, mat, g) {
+    const d = b.clone().sub(a), m = new THREE.Mesh(new THREE.CylinderGeometry(Math.max(rb, 0.002), Math.max(ra, 0.002), d.length(), 28, 1, true), mat);
+    m.position.copy(a).addScaledVector(d, 0.5); m.quaternion.setFromUnitVectors(V3(0, 1, 0), d.clone().normalize()); m.renderOrder = 5; g.add(m); return m;
+  }
+  /** Magnified-surface panel beside a tool, with leader lines from the point on the wafer it enlarges. */
+  _inset(g, pos, anchor, w = 2.5) {
+    const t = this._canvasTex(IW, IH), h = (w * IH) / IW;
+    const q = new THREE.Group(); q.position.set(...pos); q.rotation.y = 0.28; g.add(q);
+    q.add(new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: t.tex, toneMapped: false })));
+    this._box(w + 0.1, h + 0.1, 0.06, this.M.dark, [0, 0, -0.04], q);
+    const A = V3(...anchor), c = Math.cos(0.28), sn = Math.sin(0.28);
+    for (const sy of [-1, 1]) this._line([A, V3(pos[0] - (w / 2) * c, pos[1] + sy * h / 2, pos[2] + (w / 2) * sn)], 0xf6f4f2, 0.3, g);
+    this._mesh(new THREE.TorusGeometry(0.12, 0.012, 8, 32), new THREE.MeshBasicMaterial({ color: 0xf6f4f2, transparent: true, opacity: 0.7 }), anchor, g).rotation.x = Math.PI / 2;
+    return { ctx: t.canvas.getContext('2d'), tex: t.tex };
+  }
+  _variant(tool) { let best = VARIANTS[tool][0], bw = 0; for (const n of VARIANTS[tool]) { const w = this.params['v_' + n] || 0; if (w > bw) { bw = w; best = n; } } return best; }
   /** Half-sectioned process chamber with pedestal, wafer and showerhead. */
   _chamber(g) {
     const M = this.M, half = (p, mat, cap) => this._arc(p, mat, cap, Math.PI / 2, Math.PI, g);
@@ -270,9 +292,12 @@ export class FabScene extends Scene3D {
     this._box(5.2, 0.5, 3.2, M.dark, [0, 0.35, 0], g);
     for (const z of [-1.9, 1.9]) { const r = this._disc(g, 0.42, 4.4, M.iron, [0, 3.3, z], 32); r.rotation.z = Math.PI / 2; for (const x of [-2.25, 2.25]) this._box(0.2, 2.9, 0.5, M.body, [x, 1.9, z], g); }
     const ing = (this.sawIngot = new THREE.Group()); g.add(ing);
-    const body = this._disc(ing, 0.9, 3.6, this._std(0x8a93a0, { roughness: 0.25, metalness: 0.8 }), [0, 0, 0], 48); body.rotation.z = Math.PI / 2;
+    // the ingot is modelled as its future wafers, so they can separate once the wires are through
+    const sl = this._std(0x8a93a0, { roughness: 0.25, metalness: 0.8 });
+    this.slices = [];
+    for (let i = 0; i < 30; i++) { const d = this._disc(ing, 0.9, 0.122, sl, [0, 0, 0], 40); d.rotation.z = Math.PI / 2; this.slices.push(d); }
     this._box(3.8, 0.3, 1.0, M.steel, [0, -1.05, 0], ing);
-    const pts = []; for (let x = -1.75; x <= 1.76; x += 0.1) pts.push(V3(x, 0, -1.9), V3(x, 0, 1.9));
+    const pts = []; for (let i = 0; i <= 30; i++) { const x = -1.8 + i * 0.12; pts.push(V3(x, 0, -1.9), V3(x, 0, 1.9)); }
     this.wires = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0xffe0a0, transparent: true, opacity: 0.85 })); this.wires.position.y = 3.3; g.add(this.wires);
     this.sawDust = this._pts(g, 60, 0xbfd6e8, 0.05);
   }
@@ -283,13 +308,26 @@ export class FabScene extends Scene3D {
     w.rotation.x = -Math.PI / 2; this.bareWafer = w;
     this._mesh(new THREE.CylinderGeometry(0.5, 0.7, 0.9, 32), this.M.dark, [0, 0.5, 0], g);
     this._mesh(new THREE.CylinderGeometry(1.2, 1.2, 0.06, 48), this.M.iron, [0, 0.96, 0], g);
+    // finished, patterned wafer (shown on the opening and closing views): one tile per die
+    const pg = (this.patt = new THREE.Group()); pg.position.y = 1.052; g.add(pg);
+    const cells = []; for (let i = -7; i <= 6; i++) for (let j = -7; j <= 6; j++) { const x = (i + 0.5) * 0.42, z = (j + 0.5) * 0.42; if (Math.hypot(x, z) + 0.3 < 2.92) cells.push([x, z]); }
+    const im = new THREE.InstancedMesh(new THREE.BoxGeometry(0.39, 0.004, 0.39), new THREE.MeshStandardMaterial({ roughness: 0.22, metalness: 0.85 }), cells.length), mtx = new THREE.Matrix4(), col = new THREE.Color();
+    cells.forEach(([x, z], k) => { mtx.setPosition(x, 0, z); im.setMatrixAt(k, mtx); const hsh = Math.abs(Math.sin(k * 12.9898) * 43758.5453) % 1; im.setColorAt(k, col.setHSL(0.55 + 0.25 * hsh, 0.45, 0.42 + 0.12 * ((k * 7) % 5) / 5)); });
+    pg.add(im);
   }
   _dep() {
-    const g = this.tool.dep; this._chamber(g);
+    const g = this.tool.dep, M = this.M; this._chamber(g);
     this._disc(g, 1.55, 0.03, this._glow(0xff7a30, 1.0, 0x40241a), [0, 0.99, 0]);
-    this.depGas = this._pts(g, 220, 0x7dffb0, 0.05);
-    this.depGas.st.forEach((p) => { p.u = Math.random(); p.x = (Math.random() - 0.5) * 3; p.z = -Math.random() * 1.5 + 0.2; p.sp = 0.25 + Math.random() * 0.3; p.ph = Math.random() * TAU; });
-    this.film = this._disc(g, 1.5, 0.03, this._std(0x2fb7a6, { roughness: 0.3, metalness: 0.4, transparent: true, opacity: 0.9 }), [0, 1.06, 0]);
+    const mk = (c) => { const s = this._pts(g, 150, c, 0.055); s.st.forEach((p) => { p.u = Math.random(); p.x = (Math.random() - 0.5) * 3; p.z = -Math.random() * 1.5 + 0.2; p.sp = 0.25 + Math.random() * 0.3; p.ph = Math.random() * TAU; }); return s; };
+    this.depA = mk(0x7dffb0); this.depB = mk(0xff9a4a);
+    this.filmMat = this._std(0x2fb7a6, { roughness: 0.3, metalness: 0.4, transparent: true, opacity: 0.92 });
+    this.film = this._disc(g, 1.5, 0.03, this.filmMat, [0, 1.06, 0]);
+    // lamp bank above the showerhead: only lit for epitaxy
+    this.lamps = new THREE.Group(); g.add(this.lamps);
+    const lm = this._glow(0xffa24a, 2.2, 0x402010);
+    for (let i = -3; i <= 3; i++) this._rod(V3(i * 0.48, 3.06, -1.55), V3(i * 0.48, 3.06, -0.02), 0.07, lm, this.lamps, 12);
+    this.depLight = new THREE.PointLight(0xff7a30, 0, 6); this.depLight.position.set(0, 2.2, 1.0); g.add(this.depLight);
+    this.depInset = this._inset(g, [2.9, 3.1, 0.9], [0.9, 1.07, 0.3]);
   }
   _etch() {
     const g = this.tool.etch, M = this.M; this._chamber(g);
@@ -297,16 +335,19 @@ export class FabScene extends Scene3D {
     this.plasma = this._mesh(new THREE.CylinderGeometry(1.7, 1.7, 1.25, 48, 1, true, Math.PI / 2, Math.PI), new THREE.MeshBasicMaterial({ color: 0xc86bff, transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }), [0, 1.9, 0], g);
     this.plasma2 = this._mesh(new THREE.PlaneGeometry(3.4, 1.25), new THREE.MeshBasicMaterial({ color: 0xff6bd0, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }), [0, 1.9, -0.02], g);
     this.ions = this._pts(g, 160, 0xffd0ff, 0.045);
-    this.ions.st.forEach((p) => { p.u = Math.random(); p.x = (Math.random() - 0.5) * 2.9; p.z = -Math.random() * 1.4 + 0.15; p.sp = 0.9 + Math.random() * 0.6; });
+    this.ions.st.forEach((p) => { p.u = Math.random(); p.x = (Math.random() - 0.5) * 2.9; p.z = -Math.random() * 1.4 + 0.15; p.sp = 0.9 + Math.random() * 0.6; p.ph = Math.random() * TAU; });
     this.eLight = new THREE.PointLight(0xd070ff, 1.6, 6); this.eLight.position.set(0, 1.9, 1.0); g.add(this.eLight);
+    this.etchInset = this._inset(g, [2.9, 3.1, 0.9], [0.9, 1.07, 0.3]);
   }
   _euv() {
-    const g = this.tool.euv, M = this.M, XC = 0xb08cff;
+    const g = this.tool.euv, M = this.M, XC = 0xb08cff, N = (x, y) => V3(x, y, 0);
     // frame and vacuum vessel outline
     this._box(9.4, 6.3, 0.16, M.dark, [-0.7, 3.05, -1.25], g);
     this._box(9.6, 0.24, 2.6, M.body, [-0.7, -0.02, 0], g); this._box(9.6, 0.2, 2.6, M.body, [-0.7, 6.2, 0], g);
     for (const x of [-5.4, 4.0]) this._box(0.2, 6.3, 2.6, M.body, [x, 3.05, 0], g);
-    this._box(0.14, 2.4, 2.4, M.body, [-1.85, 1.2 + 0.05, 0], g); this._box(0.14, 0.9, 2.4, M.body, [-1.85, 0.5, 0], g).visible = false;
+    // wall between source and scanner, with the intermediate-focus aperture
+    this._box(0.14, 0.88, 2.4, M.body, [-1.85, 0.54, 0], g); this._box(0.14, 1.1, 2.4, M.body, [-1.85, 1.97, 0], g);
+    for (const z of [-0.75, 0.75]) this._box(0.14, 0.44, 0.9, M.body, [-1.85, 1.2, z], g);
     // source: droplet generator, CO2 laser, collector mirror, plasma
     const col = new THREE.Mesh(new THREE.SphereGeometry(1.15, 40, 20, 0, TAU, 0, 0.95), this._std(0xcfd6e6, { roughness: 0.08, metalness: 1.0 }));
     col.rotation.z = Math.PI / 2; col.position.set(-3.55, 1.2, 0); g.add(col);
@@ -316,51 +357,91 @@ export class FabScene extends Scene3D {
     this._rod(V3(-4.75, 1.2, 0), V3(-3.6, 1.2, 0), 0.022, new THREE.MeshBasicMaterial({ color: 0xff7a30, transparent: true, opacity: 0.9 }), g);
     this.plasmaBall = this._mesh(new THREE.SphereGeometry(0.11, 16, 12), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }), [-3.6, 1.2, 0], g);
     this.euvGlow = this._mesh(new THREE.SphereGeometry(0.34, 16, 12), new THREE.MeshBasicMaterial({ color: XC, transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false }), [-3.6, 1.2, 0], g);
-    // optical path (xy plane)
-    const P = [[-3.6, 1.2], [-2.3, 1.2], [-1.0, 1.2], [-2.0, 3.6], [-0.6, 2.6], [0.2, 5.2], [0.85, 2.5], [0.0, 4.0], [1.5, 3.6], [1.0, 4.7], [2.7, 1.7], [1.9, 2.7], [2.2, 0.75]].map(([x, y]) => V3(x, y, 0));
-    this.euvPath = P;
-    const mir = this._std(0xd8deea, { roughness: 0.05, metalness: 1.0 }), back = M.iron;
-    const RAD = { 2: 0.34, 3: 0.4, 4: 0.34, 6: 0.36, 7: 0.3, 8: 0.36, 9: 0.3, 10: 0.5, 11: 0.4 };
-    for (const i of Object.keys(RAD).map(Number)) {
-      const n = P[i - 1].clone().sub(P[i]).normalize().add(P[i + 1].clone().sub(P[i]).normalize()).normalize();
-      const q = new THREE.Quaternion().setFromUnitVectors(V3(0, 1, 0), n);
-      const a = this._mesh(new THREE.CylinderGeometry(RAD[i], RAD[i], 0.05, 32), mir, null, g); a.position.copy(P[i]); a.quaternion.copy(q);
-      const b = this._mesh(new THREE.CylinderGeometry(RAD[i] * 1.06, RAD[i] * 0.8, 0.16, 32), back, null, g); b.position.copy(P[i]).addScaledVector(n, -0.11); b.quaternion.copy(q);
-      this._rod(P[i].clone().addScaledVector(n, -0.19), P[i].clone().addScaledVector(n, -0.19).setZ(-1.17), 0.05, M.steel, g);
+    // optical train in the xy plane: [point, beam radius there, kind]
+    //   plasma -> collector -> intermediate focus -> 3 illuminator mirrors -> reticle -> 6 projection mirrors -> resist
+    const O = (this.euvO = [
+      [N(-3.6, 1.2), 0.03, 'src'], [N(-4.52, 1.2), 0.7, 'col'], [N(-1.85, 1.2), 0.035, 'if'],
+      [N(-0.6, 1.05), 0.36, 'cc'], [N(-1.5, 3.3), 0.3, 'cc'], [N(-0.3, 2.75), 0.3, 'cc'],
+      [N(0.9, 5.2), 0.32, 'ret'],
+      [N(2.9, 4.2), 0.36, 'cc'], [N(1.0, 3.7), 0.2, 'cv'], [N(2.9, 3.1), 0.3, 'cc'], [N(1.0, 2.6), 0.14, 'cc'], [N(3.0, 2.0), 0.17, 'cv'], [N(1.2, 1.55), 0.56, 'cc'],
+      [N(2.3, 0.705), 0.004, 'waf'],
+    ]);
+    const mir = this._std(0xdfe5f2, { roughness: 0.04, metalness: 1.0 }), back = M.iron;
+    for (let i = 3; i < O.length - 1; i++) {
+      const [P0, r, kind] = O[i]; if (kind === 'ret') continue;
+      // mirror normal bisects the incoming and outgoing rays, so every segment ends on the surface
+      const n = O[i - 1][0].clone().sub(P0).normalize().add(O[i + 1][0].clone().sub(P0).normalize()).normalize();
+      const a = r * 1.45 + 0.05, Rc = a * 2.4, th = Math.asin(1 / 2.4), sag = Rc * (1 - Math.cos(th)), cv = kind === 'cv';
+      // spherical cap: concave mirrors have their centre of curvature in front, convex ones behind
+      const cap = this._mesh(new THREE.SphereGeometry(Rc, 36, 10, 0, TAU, 0, th), mir, null, g);
+      cap.position.copy(P0).addScaledVector(n, cv ? -Rc : Rc); cap.quaternion.setFromUnitVectors(V3(0, 1, 0), cv ? n : n.clone().negate());
+      const q = new THREE.Quaternion().setFromUnitVectors(V3(0, 1, 0), n), off = cv ? sag + 0.07 : 0.07;
+      const b = this._mesh(new THREE.CylinderGeometry(a * 1.02, a * 0.82, 0.14, 32), back, null, g); b.position.copy(P0).addScaledVector(n, -off); b.quaternion.copy(q);
+      this._rod(P0.clone().addScaledVector(n, -off - 0.06), P0.clone().addScaledVector(n, -off - 0.06).setZ(-1.17), 0.05, M.steel, g);
     }
-    // reticle stage and reticle (pattern side down)
-    this._box(1.9, 0.3, 1.5, M.dark, [0.2, 5.6, 0], g);
-    this.reticle = this._box(0.95, 0.07, 0.95, this._std(0x2b2f3a, { roughness: 0.1, metalness: 0.9 }), [0.2, 5.24, 0], g);
-    this._box(0.7, 0.012, 0.7, this._glow(XC, 0.9, 0x201830), [0.2, 5.2, 0], this.reticle).position.set(0, -0.04, 0);
-    // wafer stage
-    this.wStage = new THREE.Group(); this.wStage.position.set(2.2, 0, 0); g.add(this.wStage);
+    // reticle stage and reticle (absorber pattern facing down)
+    this._box(1.9, 0.3, 1.5, M.dark, [0.9, 5.6, 0], g);
+    this.reticle = this._box(0.95, 0.07, 0.95, this._std(0x2b2f3a, { roughness: 0.1, metalness: 0.9 }), [0.9, 5.24, 0], g);
+    this._box(0.7, 0.012, 0.7, this._std(0x8a6cd8, { roughness: 0.2, metalness: 0.9 }), [0, -0.04, 0], this.reticle);
+    this._box(0.66, 0.006, 0.2, this._glow(XC, 1.4, 0x201830), [0.9, 5.196, 0], g); // illuminated slit
+    // wafer stage, wafer, resist
+    this.wStage = new THREE.Group(); this.wStage.position.set(2.3, 0, 0); g.add(this.wStage);
     this._box(2.3, 0.3, 2.0, M.iron, [0, 0.3, 0], this.wStage); this._box(1.9, 0.16, 1.8, M.dark, [0, 0.55, 0], this.wStage);
     this._disc(this.wStage, 0.85, 0.04, M.silicon, [0, 0.67, 0]);
-    this.expo = this._box(0.26, 0.012, 0.34, this._glow(XC, 1.2, 0x201830), [0, 0.7, 0], this.wStage);
-    // beam: glowing segments + photons
-    const bm = new THREE.MeshBasicMaterial({ color: XC, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false });
-    this.euvSeg = [];
-    for (let i = 0; i < P.length - 1; i++) this.euvSeg.push(this._rod(P[i], P[i + 1], i < 2 ? 0.07 : 0.05, bm, g, 10));
-    this.euvLen = []; let tot = 0; for (let i = 0; i < P.length - 1; i++) { const l = P[i].distanceTo(P[i + 1]); this.euvLen.push(l); tot += l; } this.euvTot = tot;
-    this.photons = this._pts(g, 110, 0xe0d0ff, 0.07);
-    this.photons.st.forEach((p) => { p.u = Math.random(); });
+    this._disc(this.wStage, 0.85, 0.012, this._std(0xffb347, { roughness: 0.5, metalness: 0.1, transparent: true, opacity: 0.78 }), [0, 0.697, 0]); // photoresist, top at 0.703
+    const gl = []; for (let v = -0.7; v <= 0.71; v += 0.28) { const hgt = Math.sqrt(Math.max(0, 0.72 - v * v)); gl.push(V3(v, 0.7045, -hgt), V3(v, 0.7045, hgt), V3(-hgt, 0.7045, v), V3(hgt, 0.7045, v)); }
+    this.wStage.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(gl), new THREE.LineBasicMaterial({ color: 0x3a2a10, transparent: true, opacity: 0.6 })));
+    const exm = new THREE.MeshBasicMaterial({ color: 0x8a5cff, transparent: true, opacity: 0.75 });
+    this.trail = this._box(0.24, 0.003, 1, exm, [0, 0.706, 0], this.wStage);
+    this.done = [-1, 0, 1].map((j) => this._box(0.24, 0.003, 0.26, exm, [-j * 0.28, 0.706, 0], this.wStage));
+    this.expo = this._box(0.26, 0.006, 0.035, new THREE.MeshBasicMaterial({ color: 0xffffff }), [2.3, 0.709, 0], g); // the focused slit, fixed under the optics
+    // beam envelope: cones that widen and narrow between the optics, ending in a point on the resist
+    const bm = new THREE.MeshBasicMaterial({ color: XC, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+    for (let i = 0; i < O.length - 1; i++) this._cone(O[i][0], O[i + 1][0], O[i][1], O[i + 1][1], bm, g);
+    const ray = this._line(O.map((o) => o[0]), 0xe6dcff, 0.55, g); ray.renderOrder = 6;
+    this.euvLen = []; let tot = 0; for (let i = 0; i < O.length - 1; i++) { const l = O[i][0].distanceTo(O[i + 1][0]); this.euvLen.push(l); tot += l; } this.euvTot = tot;
+    this.photons = this._pts(g, 170, 0xe0d0ff, 0.06);
+    this.photons.st.forEach((p) => { p.u = Math.random(); p.rho = Math.sqrt(Math.random()); p.a = Math.random() * TAU; });
     this.srcLight = new THREE.PointLight(XC, 2, 5); this.srcLight.position.set(-3.3, 1.4, 0.8); g.add(this.srcLight);
   }
   _cmp() {
     const g = this.tool.cmp, M = this.M;
     this._disc(g, 2.75, 0.8, M.dark, [0, 0.5, 0]);
+    // platen: turns about its own centre axis
     this.platen = new THREE.Group(); this.platen.position.set(0, 1.0, 0); g.add(this.platen);
     this._disc(this.platen, 2.5, 0.3, M.iron, [0, 0, 0]);
     this._disc(this.platen, 2.45, 0.06, this._std(0xd9d2c0, { roughness: 0.95, metalness: 0 }), [0, 0.18, 0]);
     const gr = []; for (let i = 0; i < 24; i++) { const a = (i / 24) * TAU; gr.push(V3(Math.cos(a) * 0.3, 0.215, Math.sin(a) * 0.3), V3(Math.cos(a + 0.5) * 2.4, 0.215, Math.sin(a + 0.5) * 2.4)); }
     this.platen.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(gr), new THREE.LineBasicMaterial({ color: 0x6f6962 })));
-    this.head = new THREE.Group(); this.head.position.set(0.9, 0, 0.3); g.add(this.head);
-    this._disc(this.head, 0.86, 0.035, M.silicon, [0, 1.25, 0]); this._disc(this.head, 0.95, 0.4, M.steel, [0, 1.47, 0]); this._disc(this.head, 0.5, 0.45, M.dark, [0, 1.9, 0]);
-    this._box(0.16, 0.5, 0.05, M.copper, [0.7, 1.5, 0], this.head);
-    this._rod(V3(0.9, 2.1, 0.3), V3(0.9, 3.0, 0.3), 0.14, M.body, g); this._rod(V3(0.9, 3.0, 0.3), V3(3.0, 3.0, -1.4), 0.14, M.body, g); this._rod(V3(3.0, 3.0, -1.4), V3(3.0, 0.1, -1.4), 0.2, M.body, g);
-    this._rod(V3(-2.9, 0.1, -1.2), V3(-2.9, 2.2, -1.2), 0.1, M.steel, g); this._rod(V3(-2.9, 2.2, -1.2), V3(-0.7, 1.95, -0.1), 0.06, M.steel, g);
-    this.slurry = this._pts(g, 50, 0xe8f0ff, 0.06);
-    this.cond = this._disc(g, 0.42, 0.14, M.steel, [-1.3, 1.3, -1.2]); this._rod(V3(-1.3, 1.37, -1.2), V3(-1.3, 1.9, -1.2), 0.07, M.dark, g);
+    this._box(0.5, 0.012, 0.16, M.copper, [2.1, 0.216, 0], this.platen);
+    // carrier: column -> swing arm -> motor -> spindle -> head; the head spins about the spindle axis
+    this._rod(V3(3.0, 0.1, -1.4), V3(3.0, 3.2, -1.4), 0.2, M.body, g);
+    const arm = (this.headArm = new THREE.Group()); arm.position.set(3.0, 0, -1.4); g.add(arm);
+    this._disc(arm, 0.3, 0.34, M.iron, [0, 3.1, 0]);
+    this._rod(V3(0, 3.1, 0), V3(-2.1, 3.1, 1.7), 0.15, M.body, arm);
+    this._disc(arm, 0.36, 0.56, M.dark, [-2.1, 3.0, 1.7]);
+    this._rod(V3(-2.1, 2.75, 1.7), V3(-2.1, 1.85, 1.7), 0.1, M.steel, arm);
+    this.head = new THREE.Group(); this.head.position.set(-2.1, 0, 1.7); arm.add(this.head);
+    this._disc(this.head, 0.86, 0.035, M.silicon, [0, 1.25, 0]); this._disc(this.head, 0.95, 0.36, M.steel, [0, 1.45, 0]); this._disc(this.head, 0.5, 0.3, M.dark, [0, 1.78, 0]);
+    this._box(0.16, 0.38, 0.05, M.copper, [0.74, 1.45, 0], this.head); this._box(0.5, 0.02, 0.1, M.copper, [0.55, 1.64, 0], this.head);
+    // slurry: tank -> riser -> arm -> down-turned nozzle, one continuous pipe
+    this._box(0.7, 0.7, 0.7, M.dark, [-3.3, 0.45, -1.3], g);
+    const J = [V3(-3.0, 0.8, -1.3), V3(-3.0, 2.35, -1.3), V3(-1.0, 2.35, -0.4), V3(-1.0, 1.92, -0.4)];
+    for (let i = 0; i < 3; i++) this._rod(J[i], J[i + 1], 0.06, M.steel, g, 14);
+    for (const j of [J[1], J[2]]) this._mesh(new THREE.SphereGeometry(0.075, 14, 10), M.steel, [j.x, j.y, j.z], g);
+    this._mesh(new THREE.CylinderGeometry(0.06, 0.03, 0.1, 12), M.copper, [-1.0, 1.87, -0.4], g);
+    this.drops = this._pts(g, 14, 0xe8f0ff, 0.07); this.drops.st.forEach((p, i) => { p.u = i / 14; });
+    this.slurry = this._pts(g, 120, 0xe8f0ff, 0.05); this.slurry.st.forEach((p) => { p.age = Math.random() * 3; p.j = Math.random(); });
+    // pad conditioner: small diamond disc on its own swing arm
+    this._rod(V3(0.4, 0.1, -3.0), V3(0.4, 2.05, -3.0), 0.1, M.body, g);
+    const ca = (this.condArm = new THREE.Group()); ca.position.set(0.4, 0, -3.0); g.add(ca);
+    this._disc(ca, 0.16, 0.2, M.iron, [0, 2.0, 0]);
+    this._rod(V3(0, 2.0, 0), V3(-0.5, 2.0, 1.55), 0.07, M.body, ca);
+    this._rod(V3(-0.5, 2.0, 1.55), V3(-0.5, 1.36, 1.55), 0.05, M.steel, ca);
+    this.cond = new THREE.Group(); this.cond.position.set(-0.5, 0, 1.55); ca.add(this.cond);
+    this._disc(this.cond, 0.4, 0.1, M.steel, [0, 1.3, 0]); this._disc(this.cond, 0.41, 0.03, this._std(0x2a2a2e, { roughness: 1, metalness: 0.2 }), [0, 1.235, 0]);
+    this._box(0.3, 0.02, 0.07, M.copper, [0.2, 1.36, 0], this.cond);
+    this.cmpInset = this._inset(g, [2.9, 3.3, 1.2], [1.6, 1.24, 0.9]);
   }
   _bond() {
     const g = this.tool.bond, M = this.M;
@@ -413,19 +494,31 @@ export class FabScene extends Scene3D {
     this.pDie = this._box(0.4, 0.012, 0.4, this._glow(0x18ff92, 1.0, 0x103020), [0, 1.062, 0], g);
   }
   _dice() {
-    const g = this.tool.dice, M = this.M;
+    const g = this.tool.dice, M = this.M, ST = 0.42, R2 = 2.2 * 2.2 * 0.96;
     this._disc(g, 2.9, 0.7, M.dark, [0, 0.45, 0]);
     this._arc([[2.45, 0.9], [2.85, 0.9], [2.85, 0.98], [2.45, 0.98]], M.steel, M.steel, 0, TAU * 0.999, g, 64);
     this._disc(g, 2.45, 0.02, this._std(0x3a5f8a, { roughness: 0.6, metalness: 0.1, transparent: true, opacity: 0.7 }), [0, 0.99, 0]);
-    this._gridWafer(g, 2.2, 1.05, 0.42, 0xffc730, 0.55);
-    this._box(0.4, 0.012, 0.4, this._std(0x26282c, { roughness: 0.9 }), [0.42, 1.045, 0.42], g); // hole left by the picked die
+    this._gridWafer(g, 2.2, 1.05, ST, 0xffc730, 0.4);
+    // kerfs: one per street, drawn in behind the laser. Streets 0..10 run along z, 11..21 along x.
+    this.streets = [];
+    const km = new THREE.MeshBasicMaterial({ color: 0x08080a });
+    for (let k = 0; k < 22; k++) { const v = -2.1 + (k % 11) * ST, L = Math.sqrt(Math.max(0, R2 - v * v)), m = this._box(1, 0.004, 1, km, [0, 1.053, 0], g); this.streets.push({ v, L, m, alongZ: k < 11 }); }
+    // the die that will be picked: until then it is simply part of the wafer
+    this.hole = this._box(0.4, 0.004, 0.4, this._std(0x1c2a3a, { roughness: 0.9 }), [0.21, 1.0535, 0.21], g);
     this.die = new THREE.Group(); g.add(this.die);
-    this._box(0.39, 0.05, 0.39, M.silicon, [0, 0, 0], this.die); this._box(0.3, 0.012, 0.3, this._std(0xc9773a, { roughness: 0.4, metalness: 0.8 }), [0, 0.03, 0], this.die);
-    this.collet = this._rod(V3(0, 0.05, 0), V3(0, 1.6, 0), 0.07, M.steel, this.die);
+    this._box(0.375, 0.045, 0.375, M.silicon, [0, 0, 0], this.die);
+    this._box(0.33, 0.004, 0.33, this._std(0x7f8aa0, { roughness: 0.25, metalness: 0.85 }), [0, 0.024, 0], this.die);
+    // pick-up collet (vacuum tip) on its own arm, parked above the die
+    this.pick = new THREE.Group(); g.add(this.pick);
+    this._mesh(new THREE.CylinderGeometry(0.05, 0.13, 0.14, 20), this._std(0x3a3a40, { roughness: 0.8, metalness: 0.2 }), [0, 0.07, 0], this.pick);
+    this._rod(V3(0, 0.14, 0), V3(0, 1.5, 0), 0.05, M.steel, this.pick); this._box(0.3, 0.2, 0.3, M.dark, [0, 1.6, 0], this.pick);
+    this._rod(V3(0, 1.6, 0), V3(0, 1.6, -0.8), 0.06, M.body, this.pick);
+    // laser head on a gantry
     this.laser = new THREE.Group(); g.add(this.laser);
     this._box(0.7, 0.6, 0.7, M.dark, [0, 3.1, 0], this.laser); this._mesh(new THREE.CylinderGeometry(0.2, 0.12, 0.4, 24), M.steel, [0, 2.65, 0], this.laser);
-    this._mesh(new THREE.CylinderGeometry(0.1, 0.008, 1.38, 16, 1, true), new THREE.MeshBasicMaterial({ color: 0x38ff7a, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }), [0, 1.76, 0], this.laser);
-    this._mesh(new THREE.SphereGeometry(0.05, 10, 8), new THREE.MeshBasicMaterial({ color: 0xffffff }), [0, 1.07, 0], this.laser);
+    this.lBeam = this._mesh(new THREE.CylinderGeometry(0.1, 0.008, 1.38, 16, 1, true), new THREE.MeshBasicMaterial({ color: 0x38ff7a, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }), [0, 1.76, 0], this.laser);
+    this.lSpot = this._mesh(new THREE.SphereGeometry(0.045, 10, 8), new THREE.MeshBasicMaterial({ color: 0xcaffd8 }), [0, 1.065, 0], this.laser);
+    this.sparks = this._pts(g, 30, 0xcaffd8, 0.04);
     this._box(6.2, 0.2, 0.3, M.body, [0, 3.5, -0.6], g); for (const x of [-3.0, 3.0]) this._rod(V3(x, 0.1, -0.6), V3(x, 3.5, -0.6), 0.12, M.steel, g);
   }
   _pack() {
@@ -470,7 +563,14 @@ export class FabScene extends Scene3D {
     const P = this.params, f = state.f, t = this.time;
     this._updateDevice(P.b || 0);
     this.pivot.rotation.x = Math.PI * sm(P.flip || 0);
-    for (const n of TOOLS) this.tool[n].visible = (P['t_' + n] || 0) > 0.5;
+    // tools change like a conveyor: the old one slides out to the left while the next slides in from the right
+    this._tw = this._tw || {}; this._td = this._td || {};
+    for (const n of TOOLS) {
+      const w = P['t_' + n] || 0, prev = this._tw[n] ?? w, g = this.tool[n];
+      if (w > prev + 1e-5) this._td[n] = 1; else if (w < prev - 1e-5) this._td[n] = -1;
+      this._tw[n] = w;
+      g.visible = w > 0.02; g.position.x = BAY[0] + (this._td[n] || 1) * (1 - sm(w)) * 11;
+    }
     const T = this.tool, put = (set, i, x, y, z) => { const o = i * 3; set.pos[o] = x; set.pos[o + 1] = y; set.pos[o + 2] = z; };
 
     if (T.siemens.visible) {
@@ -486,44 +586,100 @@ export class FabScene extends Scene3D {
       this.ingot.rotation.y = t * 0.8; this.melt.rotation.y = -t * 0.5; this.czLight.intensity = 2 + 0.3 * Math.sin(t * 3);
     }
     if (T.saw.visible) {
-      const d = Math.min(1, f * 1.2);
-      this.sawIngot.position.y = 1.9 + d * 1.75; this.wires.position.z = Math.sin(t * 9) * 0.04;
-      const s = this.sawDust; s.obj.visible = d > 0.05 && d < 0.98;
+      const d = Math.min(1, f * 1.2), open = sm((d - 0.62) / 0.38);
+      this.sawIngot.position.y = 1.9 + Math.min(d, 0.72) / 0.72 * 2.3; this.wires.position.z = Math.sin(t * 9) * 0.04;
+      // once the wire web is through, the slices fan apart into separate wafers
+      this.slices.forEach((sl, i) => { sl.position.x = (i - 14.5) * 0.12 * (1 + 0.42 * open); sl.rotation.x = open * 0.06 * Math.sin(i * 2.1); });
+      const s = this.sawDust; s.obj.visible = d > 0.05 && d < 0.72;
       for (let i = 0; i < s.n; i++) { const p = s.st[i]; p.age += dt; if (p.age > p.life) { p.age = 0; p.life = 0.5 + Math.random() * 0.5; p.x = (Math.random() - 0.5) * 3.4; p.z = (Math.random() - 0.5) * 1.4; p.vz = (Math.random() - 0.5) * 0.8; } put(s, i, p.x, 3.3 - p.age * p.age * 3, p.z + p.vz * p.age); }
       s.geo.attributes.position.needsUpdate = true;
     }
-    if (T.wafer.visible) this.bareWafer.rotation.z = t * 0.12;
+    if (T.wafer.visible) { this.bareWafer.rotation.z = t * 0.12; this.patt.rotation.y = t * 0.12; this.patt.visible = (P.closed || 0) > 0.5; }
+    const loop = (per) => Math.min(1, ((t / per) % 1) / 0.8); // process animations replay, holding the result briefly
     if (T.dep.visible) {
-      const s = this.depGas;
-      for (let i = 0; i < s.n; i++) { const p = s.st[i]; p.u += dt * p.sp; if (p.u > 1) { p.u = 0; p.x = (Math.random() - 0.5) * 3; p.z = -Math.random() * 1.5 + 0.2; } put(s, i, p.x + Math.sin(p.ph + p.u * 6) * 0.06, 2.58 - p.u * 1.5, p.z); }
-      s.geo.attributes.position.needsUpdate = true;
-      this.film.scale.y = 0.2 + 1.0 * f; this.film.position.y = 1.045 + 0.015 * this.film.scale.y;
+      const v = this._variant('dep'), pr = loop(v === 'ald' || v === 'hk' ? 14 : 10);
+      // what the chamber feeds: [gas A, gas B, film colour]
+      const K = { cvd: [0x7dffb0, 0, 0x2fb7a6], epi: [0x2fb7a6, 0, 0x2fb7a6], ald: [0x6fb6ff, 0xff9a4a, 0xe6d27a], sd: [0xff6b9d, 0x7ddc6e, 0], hk: [0xffc730, 0x6fb6ff, 0xffc730] }[v];
+      let onA = true, onB = false, sweep = 0;
+      if (v === 'epi') { const n = Math.min(5, Math.floor(pr * 6)); K[0] = K[2] = n % 2 ? 0xa9b8cc : 0x2fb7a6; }
+      if (v === 'sd') onB = true;
+      if (v === 'ald' || v === 'hk') {
+        const N = v === 'ald' ? 8 : 9, ph = (pr * N) % 1;
+        onA = ph < 0.3; onB = ph >= 0.5 && ph < 0.8; sweep = ph >= 0.3 && ph < 0.5 ? (ph - 0.3) / 0.2 : ph >= 0.8 ? (ph - 0.8) / 0.2 : 0;
+        if (v === 'hk' && pr > 0.55) K[0] = K[2] = 0x7f74c9;
+      }
+      if (pr >= 1) { onA = onB = false; }
+      const fall = (s, on, c, last) => {
+        s.mat.color.setHex(c || 0xffffff);
+        for (let i = 0; i < s.n; i++) {
+          const p = s.st[i];
+          if (on) { p.u += dt * p.sp; if (p.u > 1) { p.u = 0; p.x = (Math.random() - 0.5) * 3; p.z = -Math.random() * 1.5 + 0.2; } put(s, i, p.x + Math.sin(p.ph + p.u * 6) * 0.06, 2.58 - p.u * 1.5, p.z); }
+          else if (last && sweep > 0) { const x = p.x - sweep * 4.2; put(s, i, x, x < -2.15 ? 999 : 2.58 - p.u * 1.5, p.z); } // purge: swept to the pump
+          else put(s, i, 0, 999, 0);
+        }
+        s.geo.attributes.position.needsUpdate = true;
+      };
+      const purgeB = (v === 'ald' || v === 'hk') && ((pr * (v === 'ald' ? 8 : 9)) % 1) >= 0.8;
+      fall(this.depA, onA, K[0], !purgeB); fall(this.depB, onB, K[1], purgeB);
+      this.film.visible = !!K[2]; if (K[2]) this.filmMat.color.setHex(K[2]);
+      const th = v === 'ald' ? Math.floor(pr * 8) / 8 : v === 'hk' ? Math.floor(pr * 9) / 9 : pr;
+      this.film.scale.y = 0.15 + 1.4 * th; this.film.position.y = 1.045 + 0.015 * this.film.scale.y;
+      const hot = v === 'epi' || v === 'sd';
+      this.lamps.visible = hot; this.depLight.intensity = hot ? 2.2 + 0.3 * Math.sin(t * 4) : 0;
+      drawInset(this.depInset.ctx, 'dep', v, pr, t); this.depInset.tex.needsUpdate = true;
     }
     if (T.etch.visible) {
+      const v = this._variant('etch'), pr = loop(10), iso = v === 'iso';
+      const col = { rie: 0xc86bff, gate: 0x5fd0ff, iso: 0x7dffb0, hole: 0xff6b9d }[v];
       const fl2 = 0.85 + 0.15 * Math.sin(t * 13) * Math.sin(t * 7.3);
-      this.plasma.material.opacity = 0.2 * fl2; this.plasma2.material.opacity = 0.22 * fl2; this.eLight.intensity = 1.6 * fl2;
-      const s = this.ions;
-      for (let i = 0; i < s.n; i++) { const p = s.st[i]; p.u += dt * p.sp; if (p.u > 1) { p.u = 0; p.x = (Math.random() - 0.5) * 2.9; } put(s, i, p.x, 1.35 - p.u * p.u * 0.3 + (1 - p.u) * 0.0, p.z); s.pos[i * 3 + 1] = 1.4 - p.u * 0.34; }
+      this.plasma.material.color.setHex(col); this.plasma2.material.color.setHex(col); this.eLight.color.setHex(col);
+      // channel release uses a remote plasma: the glow stays up at the source and only neutral radicals reach the wafer
+      for (const m of [this.plasma, this.plasma2]) { m.scale.y = iso ? 0.28 : 1; m.position.y = iso ? 2.42 : 1.9; }
+      this.plasma.material.opacity = 0.2 * fl2; this.plasma2.material.opacity = 0.22 * fl2; this.eLight.intensity = (iso ? 0.8 : 1.6) * fl2;
+      const s = this.ions; s.mat.color.setHex(iso ? 0x7dffb0 : 0xffd0ff);
+      for (let i = 0; i < s.n; i++) {
+        const p = s.st[i];
+        if (iso) { p.u = (p.u + dt * 0.07) % 1; put(s, i, p.x + Math.sin(t * 0.9 + p.ph) * 0.35, 1.12 + ((p.u + 0.5 * Math.sin(t * 0.6 + p.ph * 3)) % 1 + 1) % 1 * 1.1, p.z + Math.cos(t * 0.7 + p.ph * 2) * 0.12); } // random drift, no direction
+        else { p.u += dt * p.sp; if (p.u > 1) { p.u = 0; p.x = (Math.random() - 0.5) * 2.9; } put(s, i, p.x, 1.4 - p.u * 0.34, p.z); } // straight down across the sheath
+      }
       s.geo.attributes.position.needsUpdate = true;
+      drawInset(this.etchInset.ctx, 'etch', v, pr, t); this.etchInset.tex.needsUpdate = true;
     }
     if (T.euv.visible) {
       const pulse = (t * 6) % 1;
       this.plasmaBall.scale.setScalar(0.5 + 1.6 * Math.exp(-pulse * 6)); this.euvGlow.material.opacity = 0.2 + 0.5 * Math.exp(-pulse * 5); this.srcLight.intensity = 1 + 3 * Math.exp(-pulse * 5);
       const dr = this.droplets; for (let i = 0; i < dr.n; i++) put(dr, i, -3.6, 2.2 - (((t * 6 + i) % 6) / 6) * 1.0, 0); dr.geo.attributes.position.needsUpdate = true;
-      const scan = Math.sin(t * 1.3);
-      this.reticle.position.z = scan * 0.22; this.wStage.position.z = -scan * 0.5; this.expo.position.z = scan * 0.5 * 0 + 0;
-      const s = this.photons, Pp = this.euvPath;
+      // step and scan: the focused slit stays put, the wafer moves under it; the reticle scans the other way
+      const per = 2.6, u = (t / per) % 1, j = Math.floor(t / per) % 3, sc = sm(Math.min(1, u / 0.8)), oz = lerp(0.13, -0.13, sc), ox = (j - 1) * 0.28;
+      this.wStage.position.set(2.3 + ox, 0, oz); this.reticle.position.z = -oz * 1.5;
+      const zb = -oz, len = Math.max(0.002, zb + 0.13);
+      this.trail.scale.z = len; this.trail.position.set(-ox, 0.706, -0.13 + len / 2);
+      this.done.forEach((m, k) => { m.visible = k < j; });
+      const s = this.photons, O = this.euvO;
       for (let i = 0; i < s.n; i++) {
-        const p = s.st[i]; p.u = (p.u + dt * 0.33) % 1; let d = p.u * this.euvTot, k = 0; while (k < this.euvLen.length - 1 && d > this.euvLen[k]) d -= this.euvLen[k++];
-        const a = Pp[k], b = Pp[k + 1], q = d / this.euvLen[k]; put(s, i, lerp(a.x, b.x, q), lerp(a.y, b.y, q), (((i * 37) % 11) / 11 - 0.5) * 0.08);
+        const p = s.st[i]; p.u = (p.u + dt * 0.3) % 1; let d = p.u * this.euvTot, k = 0; while (k < this.euvLen.length - 1 && d > this.euvLen[k]) d -= this.euvLen[k++];
+        const a = O[k][0], b = O[k + 1][0], q = d / this.euvLen[k], r = lerp(O[k][1], O[k + 1][1], q) * p.rho, L = this.euvLen[k];
+        const nx = -(b.y - a.y) / L, ny = (b.x - a.x) / L, c = Math.cos(p.a) * r;
+        put(s, i, lerp(a.x, b.x, q) + nx * c, lerp(a.y, b.y, q) + ny * c, Math.sin(p.a) * r);
       }
       s.geo.attributes.position.needsUpdate = true;
     }
     if (T.cmp.visible) {
-      this.platen.rotation.y = t * 1.2; this.head.rotation.y = -t * 2.2; this.head.position.x = 0.9 + 0.25 * Math.sin(t * 0.7); this.cond.rotation.y = t * 3;
+      const v = this._variant('cmp'), om = 1.1, NZ = [-1.0, -0.4], r0 = Math.hypot(...NZ), a0 = Math.atan2(NZ[1], NZ[0]);
+      this.platen.rotation.y = t * om;
+      this.headArm.rotation.y = 0.07 * Math.sin(t * 0.7); this.head.rotation.y = t * 1.9;
+      this.condArm.rotation.y = 0.2 * Math.sin(t * 0.45); this.cond.rotation.y = t * 4;
+      const col = v === 'cu' ? 0x9fd0ff : 0xe8f0ff; this.drops.mat.color.setHex(col); this.slurry.mat.color.setHex(col);
+      const dp = this.drops; for (let i = 0; i < dp.n; i++) { const q = (dp.st[i].u + t * 1.6) % 1; put(dp, i, NZ[0], 1.82 - q * q * 0.59, NZ[1]); } dp.geo.attributes.position.needsUpdate = true;
+      // slurry lands under the nozzle and is carried round and outwards by the turning pad
       const s = this.slurry;
-      for (let i = 0; i < s.n; i++) { const p = s.st[i]; p.age += dt; if (p.age > p.life) { p.age = 0; p.life = 0.35 + Math.random() * 0.3; p.x = (Math.random() - 0.5) * 0.1; } put(s, i, -0.7 + p.x, 1.95 - p.age * p.age * 6, -0.1 + p.x); }
+      for (let i = 0; i < s.n; i++) {
+        const p = s.st[i]; p.age += dt; if (p.age > 3.2) { p.age = 0; p.j = Math.random(); }
+        const r = r0 + (p.j - 0.5) * 0.16 + p.age * (0.25 + 0.25 * p.j), a = a0 - om * p.age;
+        put(s, i, Math.cos(a) * r, r > 2.42 ? 999 : 1.228, Math.sin(a) * r);
+      }
       s.geo.attributes.position.needsUpdate = true;
+      drawInset(this.cmpInset.ctx, 'cmp', v, loop(9), t); this.cmpInset.tex.needsUpdate = true;
     }
     if (T.bond.visible) {
       const d = Math.min(1, f * 1.3), gap = 1.5 * (1 - sm(d / 0.75));
@@ -550,9 +706,23 @@ export class FabScene extends Scene3D {
       this.pChuck.position.set(0.42 * (step - 2), down ? 0 : -0.1, 0); this.pDie.visible = down; this.pDie.material.emissiveIntensity = 0.6 + 0.6 * Math.sin(t * 20);
     }
     if (T.dice.visible) {
-      const d = Math.min(1, f * 1.2), lift = sm((d - 0.45) / 0.5);
-      this.laser.position.set(0.63, 0, 2.2 - ((t * 0.5) % 1) * 4.4); this.laser.visible = d < 0.55;
-      this.die.position.set(0.42, 1.075 + lift * 0.75, 0.42); this.collet.visible = d > 0.4;
+      // everything follows the scroll: 22 streets cut one after another, then the collet picks one die
+      const cut = Math.min(1, f / 0.8) * 22, k = Math.min(21, Math.floor(cut)), q = f >= 0.8 ? 1 : cut - k;
+      this.streets.forEach((st, i) => {
+        const fr2 = i < k ? 1 : i === k ? q : 0, len = Math.max(0.0001, 2 * st.L * fr2);
+        st.m.visible = fr2 > 0.001;
+        if (st.alongZ) { st.m.scale.set(0.045, 1, len); st.m.position.set(st.v, 1.053, -st.L + len / 2); }
+        else { st.m.scale.set(len, 1, 0.045); st.m.position.set(-st.L + len / 2, 1.053, st.v); }
+      });
+      const st = this.streets[k], along = lerp(-st.L, st.L, q), away = sm((f - 0.8) / 0.08);
+      const lx = st.alongZ ? st.v : along, lz = st.alongZ ? along : st.v;
+      this.laser.position.set(lx, away * 1.3, lz); this.lBeam.visible = this.lSpot.visible = f < 0.8;
+      const sp = this.sparks; sp.obj.visible = f > 0.002 && f < 0.8;
+      for (let i = 0; i < sp.n; i++) { const p = sp.st[i]; p.age += dt; if (p.age > p.life) { p.age = 0; p.life = 0.15 + Math.random() * 0.2; p.a = Math.random() * TAU; p.x = lx; p.z = lz; } put(sp, i, p.x + Math.cos(p.a) * p.age * 0.8, 1.07 + p.age * 0.9 - p.age * p.age * 5, p.z + Math.sin(p.a) * p.age * 0.8); }
+      sp.geo.attributes.position.needsUpdate = true;
+      const down = sm((f - 0.8) / 0.08), lift = sm((f - 0.9) / 0.1);
+      this.die.position.set(0.21, 1.031 + lift * 0.85, 0.21); this.hole.visible = lift > 0.02;
+      this.pick.position.set(0.21, 1.058 + (1 - down) * 1.7 + lift * 0.85, 0.21);
     }
     if (T.pack.visible) {
       const e = 1 - sm(Math.min(1, f * 1.2)); // exploded at first, assembled as the stage proceeds

@@ -78,9 +78,11 @@ const TL = (k) => TOOL_LABELS?.[k] || [];
 const CL = (k) => CLOSE_LABELS?.[k] || [];
 const DL = (b) => DEVICE_LABELS?.[b] || [];
 /** A wafer-level or primer stage: tool overview, then a close-up of the same tool. */
-const bay = (k, b, flip = 0, k2 = null) => ({ cam: tool(k), cam2: k2 ? tool(k2) : close(k), labels: TL(k), labels2: k2 ? TL(k2) : CL(k), s: { b, flip, [`t_${k}`]: 1 }, s2: { b, flip, [`t_${k2 || k}`]: 1 } });
+/** `v` names the process variant the tool performs in this stage (see src/fab/insets.js). */
+const vv = (v) => (v ? { [`v_${v}`]: 1 } : {});
+const bay = (k, b, flip = 0, k2 = null, v = null) => ({ cam: tool(k), cam2: k2 ? tool(k2) : close(k), labels: TL(k), labels2: k2 ? TL(k2) : CL(k), s: { b, flip, [`t_${k}`]: 1, ...vv(v) }, s2: { b, flip, [`t_${k2 || k}`]: 1, ...vv(v) } });
 /** A process stage: the tool, then the device cross-section showing what it did. */
-const proc = (k, b0, b1, f0 = 0, f1 = f0) => ({ cam: tool(k), cam2: f1 ? VIEW?.deviceFlip || VIEW?.device || FALL : VIEW?.device || FALL, labels: TL(k), labels2: DL(b1), s: { b: b0, flip: f0, [`t_${k}`]: 1 }, s2: { b: b1, flip: f1, [`t_${k}`]: 1 } });
+const proc = (k, b0, b1, f0 = 0, f1 = f0, v = null) => ({ cam: tool(k), cam2: f1 ? VIEW?.deviceFlip || VIEW?.device || FALL : VIEW?.device || FALL, labels: TL(k), labels2: DL(b1), s: { b: b0, flip: f0, [`t_${k}`]: 1, ...vv(v) }, s2: { b: b1, flip: f1, [`t_${k}`]: 1, ...vv(v) } });
 
 export const STAGES = [
   // ------------------------------------------------------------------ 1
@@ -148,7 +150,7 @@ export const STAGES = [
     eq: `R = ${fr('1', '1/k<sub>s</sub> + 1/h<sub>g</sub>')} , &nbsp; k<sub>s</sub> ∝ e<sup>−E<sub>a</sub>/kT</sup>`,
     eqNote: 'Growth is limited by surface reaction at low temperature and by gas-phase transport at high temperature.',
     plot: { title: 'Silicon growth rate vs temperature', xl: '1000 / T [K⁻¹]', yl: 'rate [nm/min]', ly: true, x: [0.68, 1.35], y: [0.01, 1000], series: [{ f: (x) => depRate(x), c: 'accent' }], vl: [{ x: 0.86, name: 'transport | reaction' }], mark: (f) => 1000 / (lerp(500, 1150, g(f)) + 273) },
-    ...bay('dep', 0),
+    ...bay('dep', 0, 0, null, 'cvd'),
     watch: { risk: 'Thickness and composition drifting across the wafer, particles from the chamber wall, and voids where a film closes a gap too early.', by: [['Thickness · ellipsometry', 'semiconductor.html#ellipsometry'], ['Cross-section · TEM', 'tem.html#contrast']] },
   },
   // ------------------------------------------------------------------ 5
@@ -165,7 +167,7 @@ export const STAGES = [
     eq: `a(x) ≈ 5.431 + 0.20x + 0.027x² Å , &nbsp; ε = ${fr('a<sub>SiGe</sub> − a<sub>Si</sub>', 'a<sub>Si</sub>')}`,
     eqNote: 'SiGe is compressively strained to match silicon in-plane; beyond a critical thickness it relaxes by misfit dislocations.',
     plot: { title: 'Critical thickness of strained SiGe on Si', xl: 'Ge [%]', yl: 'h_c [nm]', ly: true, x: [10, 60], y: [5, 1000], series: [{ f: (x) => hcSiGe(x / 100), c: 'accent' }], hl: [{ y: 60, name: 'total SiGe in a 4-pair stack' }], mark: (f) => lerp(10, 50, g(f)) },
-    ...proc('dep', 0, 1),
+    ...proc('dep', 0, 1, 0, 0, 'epi'),
     watch: { risk: 'Layer thickness or Ge fraction off target, interdiffusion at the interfaces, and misfit dislocations if the stack relaxes.', by: [['Strain and period · XRD', 'xrd.html#profile'], ['Interfaces · TEM', 'tem.html#hrtem'], ['Composition · SIMS', 'semiconductor.html#sims']] },
   },
   // ------------------------------------------------------------------ 6
@@ -199,7 +201,7 @@ export const STAGES = [
     eq: `Y ∝ ${rt('E<sub>ion</sub>')} − ${rt('E<sub>th</sub>')} , &nbsp; A = 1 − ${fr('R<sub>lateral</sub>', 'R<sub>vertical</sub>')}`,
     eqNote: 'Ion-enhanced etch yield above a threshold energy, and the definition of anisotropy.',
     plot: { title: 'Etch yield vs ion energy (Cl₂ plasma)', xl: 'ion energy [eV]', yl: 'yield [atoms/ion]', x: [0, 220], y: [0, 1.4], series: [{ f: (E) => etchYield(E, 20, 0.12), c: 'accent', name: 'Si', lx: 150 }, { f: (E) => etchYield(E, 45, 0.05), c: 'fg', name: 'SiO₂', lx: 150 }], mark: (f) => lerp(15, 200, g(f)) },
-    ...bay('etch', 1),
+    ...bay('etch', 1, 0, null, 'rie'),
     watch: { risk: 'Bowed or tapered profiles, micro-loading between dense and isolated features, and residues or damage left on the etched surface.', by: [['Profile · SEM cross-section', 'sem.html#detectors'], ['Damage layer · TEM', 'tem.html#hrtem']] },
   },
   // ------------------------------------------------------------------ 8
@@ -233,7 +235,7 @@ export const STAGES = [
     eq: `RR = K<sub>p</sub> · P · V`,
     eqNote: 'Preston’s equation: removal rate is proportional to pressure and relative velocity.',
     plot: { title: 'Removal rate vs down force', xl: 'pressure [psi]', yl: 'rate [nm/min]', x: [0, 6], y: [0, 900], series: [{ f: (P) => 100 * P * 0.5, c: 'dim', name: '0.5 m/s', lx: 4.6 }, { f: (P) => 100 * P * 1.0, c: 'accent', name: '1.0 m/s', lx: 4.6 }, { f: (P) => 100 * P * 1.5, c: 'fg', name: '1.5 m/s', lx: 4.0 }], mark: (f) => lerp(1, 5, g(f)), markSeries: 1 },
-    ...bay('cmp', 2),
+    ...bay('cmp', 2, 0, null, 'cmp0'),
     watch: { risk: 'Micro-scratches, slurry residue, dishing of wide features and erosion of dense arrays.', by: [['Scratches and residue · SEM', 'sem.html#detectors'], ['Remaining film · ellipsometry', 'semiconductor.html#ellipsometry']] },
   },
   // ------------------------------------------------------------------ 10
@@ -250,7 +252,7 @@ export const STAGES = [
     eq: `AR = ${fr('depth', 'width')} , &nbsp; h<sub>reveal</sub> = R<sub>etch</sub> · t`,
     eqNote: 'Fill difficulty grows with aspect ratio; the reveal height is set by a timed, highly uniform etch.',
     plot: { title: 'Stack reveal vs recess time', xl: 'time [s]', yl: 'reveal [nm]', x: [0, 70], y: [0, 80], series: [{ f: (t) => t * 1.0, c: 'accent' }], hl: [{ y: 60, name: 'target' }], mark: (f) => lerp(0, 60, g(f)) },
-    ...proc('cmp', 2, 3),
+    ...proc('cmp', 2, 3, 0, 0, 'sti'),
     watch: { risk: 'Voids or seams in the fill, oxidised SiGe layers, and uneven recess depth from ribbon to ribbon.', by: [['Voids · TEM cross-section', 'tem.html#contrast'], ['Step height · SEM', 'sem.html#detectors']] },
   },
   // ------------------------------------------------------------------ 11
@@ -267,7 +269,7 @@ export const STAGES = [
     eq: `CPP = L<sub>g</sub> + 2 t<sub>spacer</sub> + W<sub>contact</sub>`,
     eqNote: 'The contacted gate pitch must hold the gate, two spacers and a source/drain contact.',
     plot: { title: 'Contacted gate pitch by node [nm]', draw: (c, f) => drawBars(c, NODES.map(([n, v]) => [n, v, `${v} nm`]), { hi: Math.min(5, Math.floor(g(f) * 6)), min: 0 }) },
-    ...proc('etch', 3, 4),
+    ...proc('etch', 3, 4, 0, 0, 'gate'),
     watch: { risk: 'Gate line-width variation and roughness, footing where the gate meets the ribbon, and poly residue between ribbons.', by: [['Gate CD · SEM', 'sem.html#image'], ['Gate profile · TEM', 'tem.html#contrast']] },
   },
   // ------------------------------------------------------------------ 12
@@ -284,7 +286,7 @@ export const STAGES = [
     eq: `C<sub>par</sub> ≈ ${fr('k ε₀ · H<sub>gate</sub>', 't<sub>spacer</sub>')}`,
     eqNote: 'Parallel-plate estimate of gate-to-contact capacitance per unit width, for a 50 nm tall gate and 6 nm spacer.',
     plot: { title: 'Parasitic capacitance vs spacer k', xl: 'dielectric constant k', yl: 'C [fF/µm]', x: [1, 7.5], y: [0, 0.6], series: [{ f: (k) => 0.074 * k, c: 'accent' }], vl: [{ x: 3.9, name: 'SiO₂' }, { x: 7, name: 'SiN' }], mark: (f) => lerp(7, 1, g(f)) },
-    ...proc('dep', 4, 5),
+    ...proc('dep', 4, 5, 0, 0, 'ald'),
     watch: { risk: 'Inner spacers too shallow or missing, which shorts gate to source/drain, and spacer pull-down that exposes the gate corner.', by: [['Inner spacer · TEM', 'tem.html#hrtem'], ['Composition · EELS / EDS', 'tem.html#spectroscopy']] },
   },
   // ------------------------------------------------------------------ 13
@@ -301,7 +303,7 @@ export const STAGES = [
     eq: `R<sub>c</sub> = ${fr('ρ<sub>c</sub>', 'A<sub>contact</sub>')}`,
     eqNote: 'As contacts shrink, interface resistance dominates the transistor’s series resistance.',
     plot: { title: 'Contact resistance vs contact area', xl: 'area [nm²]', yl: 'R [Ω]', lx: true, ly: true, x: [100, 5000], y: [5, 5000], series: [{ f: (A) => 2e-9 / (A * 1e-14), c: 'dim', name: '2×10⁻⁹', lx: 1500 }, { f: (A) => 1e-9 / (A * 1e-14), c: 'accent', name: 'ρc = 1×10⁻⁹ Ω·cm²', lx: 130 }, { f: (A) => 5e-10 / (A * 1e-14), c: 'fg', name: '5×10⁻¹⁰', lx: 1500 }], mark: (f) => logf(f, 2000, 150), markSeries: 1 },
-    ...proc('dep', 5, 6),
+    ...proc('dep', 5, 6, 0, 0, 'sd'),
     watch: { risk: 'Unmerged or over-merged epitaxy, stacking faults where growth fronts meet, and dopant that is present but not electrically active.', by: [['Faults · TEM', 'tem.html#hrtem'], ['Dopant profile · SIMS', 'semiconductor.html#sims'], ['Strain · Raman', 'semiconductor.html#raman']] },
   },
   // ------------------------------------------------------------------ 14
@@ -318,7 +320,7 @@ export const STAGES = [
     eq: `S = ${fr('R<sub>target</sub>', 'R<sub>stop</sub>')}`,
     eqNote: 'Selectivity: how much faster the film to be removed etches than the film that must stay.',
     plot: { title: 'Etch rate in hot TMAH [nm/min], approximate', draw: (c) => drawBars(c, [['poly-Si', 300, '300'], ['SiGe 30 %', 30, '30'], ['SiO₂', 0.1, '0.1'], ['SiN', 0.05, '0.05']], { log: true, min: 0.01 }) },
-    ...proc('cmp', 6, 7),
+    ...proc('cmp', 6, 7, 0, 0, 'poc'),
     watch: { risk: 'Gates left unopened by uneven polish, silicon residue in the trench corners, and attack of the ribbon through a pinhole in the dummy oxide.', by: [['Open trenches · SEM', 'sem.html#detectors'], ['Residue · TEM', 'tem.html#contrast']] },
   },
   // ------------------------------------------------------------------ 15
@@ -335,7 +337,7 @@ export const STAGES = [
     eq: `Δt<sub>Si</sub> = ${fr('W<sub>sheet</sub> / 2', 'S')}`,
     eqNote: 'Silicon lost from each sheet surface while the etch travels half the sheet width through SiGe.',
     plot: { title: 'Release selectivity vs Ge content, approximate', xl: 'Ge [%]', yl: 'SiGe : Si', ly: true, x: [10, 45], y: [5, 1000], series: [{ f: (x) => selSiGe(x), c: 'accent' }], hl: [{ y: 100, name: 'needed' }], mark: (f) => lerp(15, 40, g(f)) },
-    ...proc('etch', 7, 8), cam2: VIEW.deviceClose,
+    ...proc('etch', 7, 8, 0, 0, 'iso'), cam2: VIEW.deviceClose,
     watch: { risk: 'SiGe left between sheets, thinned or rounded sheets, and sheets bent or stuck together.', by: [['Sheet shape · TEM', 'tem.html#hrtem'], ['Residual Ge · EELS / EDS', 'tem.html#spectroscopy']] },
   },
   // ------------------------------------------------------------------ 16
@@ -352,7 +354,7 @@ export const STAGES = [
     eq: `EOT = t<sub>IL</sub> + t<sub>hk</sub> ${fr('3.9', 'k<sub>hk</sub>')} , &nbsp; J ∝ e<sup>−2κ t<sub>phys</sub></sup>`,
     eqNote: 'A high-k film is physically thicker for the same capacitance, and tunnelling falls exponentially with thickness.',
     plot: { title: 'Gate leakage at 1 V vs EOT, approximate', xl: 'EOT [nm]', yl: 'J [A/cm²]', ly: true, x: [0.6, 2], y: [1e-6, 1e5], series: [{ f: (e) => jSiO2(e), c: 'dim', name: 'SiO₂', lx: 1.5 }, { f: (e) => jHfO2(e), c: 'accent', name: 'HfO₂ / metal gate', lx: 0.9 }], hl: [{ y: 1, name: 'budget' }], mark: (f) => lerp(1.6, 0.7, g(f)), markSeries: 1 },
-    ...proc('dep', 8, 9), cam2: VIEW.deviceClose,
+    ...proc('dep', 8, 9, 0, 0, 'hk'), cam2: VIEW.deviceClose,
     watch: { risk: 'Work-function metal pinching off between sheets, threshold-voltage spread, and interface traps or leakage paths in the dielectric.', by: [['Layer-by-layer · STEM', 'tem.html#stem'], ['Interface traps · C–V', 'semiconductor.html#cv'], ['Threshold · I–V', 'semiconductor.html#iv']] },
   },
   // ------------------------------------------------------------------ 17
@@ -369,7 +371,7 @@ export const STAGES = [
     eq: `R = ${fr('ρ(d) · h', '(d − 2t<sub>b</sub>)²')}`,
     eqNote: 'A barrier of thickness t<sub>b</sub> takes area from the conductor; resistivity itself rises as d shrinks.',
     plot: { title: 'Contact plug resistance vs size, approximate', xl: 'CD [nm]', yl: 'R [Ω]', ly: true, x: [8, 30], y: [5, 2000], series: [{ f: (d) => viaR(d, 2), c: 'dim', name: 'with 2 nm barrier', lx: 16 }, { f: (d) => viaR(d, 0), c: 'accent', name: 'barrierless', lx: 9 }], mark: (f) => lerp(28, 9, g(f)), markSeries: 1 },
-    ...proc('etch', 9, 10),
+    ...proc('etch', 9, 10, 0, 0, 'hole'),
     watch: { risk: 'Contacts that stop short and stay open, contacts that touch the gate, and voids in the metal fill.', by: [['Opens · voltage contrast SEM', 'sem.html#image'], ['Shorts and voids · TEM', 'tem.html#contrast'], ['Silicide phase · EELS', 'tem.html#spectroscopy']] },
   },
   // ------------------------------------------------------------------ 18
@@ -386,7 +388,7 @@ export const STAGES = [
     eq: `ρ(w) ≈ ρ₀ <span class="big">(</span>1 + C ${fr('λ', 'w')}<span class="big">)</span> , &nbsp; τ = R C`,
     eqNote: 'Surface and grain-boundary scattering add a term in mean free path λ over width: 39 nm for Cu, 6.6 nm for Ru.',
     plot: { title: 'Wire resistivity vs line width', xl: 'width [nm]', yl: 'ρ [µΩ·cm]', x: [7, 40], y: [0, 40], series: [{ f: (w) => rhoWire(w, 1.68, 39, 2), c: 'accent', name: 'Cu + 2 nm liner', lx: 22 }, { f: (w) => rhoWire(w, 7.1, 6.6, 0), c: 'fg', name: 'Ru, no liner', lx: 22 }], mark: (f) => lerp(40, 8, g(f)) },
-    ...proc('cmp', 10, 11),
+    ...proc('cmp', 10, 11, 0, 0, 'cu'),
     watch: { risk: 'Voids in narrow lines, via misalignment, cracked or damaged low-k, and electromigration and dielectric breakdown over lifetime.', by: [['Voids · SEM cross-section', 'sem.html#detectors'], ['Barrier integrity · STEM', 'tem.html#stem'], ['Opens · voltage contrast', 'sem.html#image']] },
   },
   // ------------------------------------------------------------------ 19
