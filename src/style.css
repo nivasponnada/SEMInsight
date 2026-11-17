@@ -237,3 +237,24 @@ footer a { color: inherit; }
 .vs-two figure { margin: 0; min-width: 0; }
 .vs-two figcaption, .vs-cap { font: 400 10px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--dim); padding: 6px 0 0; }
 .vs-two canvas { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 6px; background: #000; }
+
+/* ---------- wafer-journey additions */
+.watch { margin-top: 16px; border-left: 2px solid var(--accent); padding: 2px 0 2px 14px; display: grid; gap: 8px; }
+.watch p { font-size: 14px; line-height: 1.4; color: var(--dim); }
+.watch b { display: block; font: 400 10px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--fg); margin-bottom: 2px; }
+.watch a { font: 400 11px var(--mono); letter-spacing: .05em; text-transform: uppercase; color: var(--accent); text-decoration: none; margin-right: 14px; white-space: nowrap; }
+.watch a:hover { text-decoration: underline; }
+.hud-pass { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding-bottom: 9px; margin-bottom: 9px; border-bottom: 1px solid var(--line); }
+.hud-pass div { min-width: 0; }
+.hud-pass span { display: block; font: 400 9px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud-pass b { font: 500 13px var(--mono); font-variant-numeric: tabular-nums; }
+.vs-wide { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 34px; margin-top: 14px; min-width: 0; }
+.vs-wide h3 { font: 600 clamp(24px, 2.4vw, 34px)/1.1 var(--sans); letter-spacing: -.01em; }
+.vs-wide > p { color: var(--dim); max-width: 70ch; margin: 10px 0 18px; }
+.xs-row { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(240px, 1fr); gap: clamp(18px, 2.4vw, 36px); align-items: start; }
+.xs-row canvas { width: 100%; height: auto; display: block; border: 1px solid var(--line); border-radius: 6px; background: #151413; }
+.xs-step { font: 500 20px/1.2 var(--sans); margin: 4px 0 8px; }
+.xs-desc { color: var(--dim); font-size: 15px; }
+.xs-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 14px; font: 400 10.5px var(--mono); color: var(--dim); text-transform: uppercase; letter-spacing: .05em; }
+.xs-legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
+@media (max-width: 819px) { .xs-row { grid-template-columns: 1fr; } .stage-text .watch { display: none; } }
