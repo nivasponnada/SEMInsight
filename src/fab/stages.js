@@ -335,7 +335,7 @@ export const STAGES = [
     eq: `Δt<sub>Si</sub> = ${fr('W<sub>sheet</sub> / 2', 'S')}`,
     eqNote: 'Silicon lost from each sheet surface while the etch travels half the sheet width through SiGe.',
     plot: { title: 'Release selectivity vs Ge content, approximate', xl: 'Ge [%]', yl: 'SiGe : Si', ly: true, x: [10, 45], y: [5, 1000], series: [{ f: (x) => selSiGe(x), c: 'accent' }], hl: [{ y: 100, name: 'needed' }], mark: (f) => lerp(15, 40, g(f)) },
-    ...proc('etch', 7, 8),
+    ...proc('etch', 7, 8), cam2: VIEW.deviceClose,
     watch: { risk: 'SiGe left between sheets, thinned or rounded sheets, and sheets bent or stuck together.', by: [['Sheet shape · TEM', 'tem.html#hrtem'], ['Residual Ge · EELS / EDS', 'tem.html#spectroscopy']] },
   },
   // ------------------------------------------------------------------ 16
@@ -352,7 +352,7 @@ export const STAGES = [
     eq: `EOT = t<sub>IL</sub> + t<sub>hk</sub> ${fr('3.9', 'k<sub>hk</sub>')} , &nbsp; J ∝ e<sup>−2κ t<sub>phys</sub></sup>`,
     eqNote: 'A high-k film is physically thicker for the same capacitance, and tunnelling falls exponentially with thickness.',
     plot: { title: 'Gate leakage at 1 V vs EOT, approximate', xl: 'EOT [nm]', yl: 'J [A/cm²]', ly: true, x: [0.6, 2], y: [1e-6, 1e5], series: [{ f: (e) => jSiO2(e), c: 'dim', name: 'SiO₂', lx: 1.5 }, { f: (e) => jHfO2(e), c: 'accent', name: 'HfO₂ / metal gate', lx: 0.9 }], hl: [{ y: 1, name: 'budget' }], mark: (f) => lerp(1.6, 0.7, g(f)), markSeries: 1 },
-    ...proc('dep', 8, 9),
+    ...proc('dep', 8, 9), cam2: VIEW.deviceClose,
     watch: { risk: 'Work-function metal pinching off between sheets, threshold-voltage spread, and interface traps or leakage paths in the dielectric.', by: [['Layer-by-layer · STEM', 'tem.html#stem'], ['Interface traps · C–V', 'semiconductor.html#cv'], ['Threshold · I–V', 'semiconductor.html#iv']] },
   },
   // ------------------------------------------------------------------ 17
@@ -403,7 +403,7 @@ export const STAGES = [
     eq: `Si–OH + HO–Si → Si–O–Si + H₂O`,
     eqNote: 'Hydrophilic fusion bonding: hydroxyl-terminated oxide surfaces condense into siloxane bonds on annealing.',
     plot: { title: 'Substrate remaining after each step [µm]', draw: (c, f) => drawBars(c, [['bonded', 775, '775 µm'], ['back-grind', 20, '20 µm'], ['CMP', 2, '2 µm'], ['selective etch', 0.3, '0.3 µm']], { log: true, min: 0.1, hi: Math.min(3, Math.floor(g(f) * 4)) }) },
-    ...proc('bond', 11, 12, 0, 1),
+    ...proc('bond', 11, 12, 0, 0), cam2: VIEW.deviceTall,
     watch: { risk: 'Bond voids from particles, wafer distortion that breaks backside overlay, and uneven thinning that exposes or buries devices.', by: [['Remaining silicon · ellipsometry', 'semiconductor.html#ellipsometry'], ['Bond interface · TEM', 'tem.html#contrast'], ['Stress · Raman', 'semiconductor.html#raman']] },
   },
   // ------------------------------------------------------------------ 20

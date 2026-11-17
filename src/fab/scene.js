@@ -15,9 +15,10 @@ export const TOOLS = ['siemens', 'cz', 'saw', 'wafer', 'dep', 'euv', 'etch', 'cm
 const cam = (p, t, o = {}) => ({ p: B(...p), t: B(...t), shift: 0.1, shiftY: -0.11, ...o });
 const close = (p, t, o = {}) => cam(p.map((v, i) => t[i] + (v - t[i]) * 1.45), t, o);
 export const VIEW = {
-  device: { p: [9.2, 5.4, 10.8], t: [0.3, 0.8, 0], shift: 0.07, shiftY: -0.1 },
-  deviceClose: { p: [10.3, 3.1, 6.9], t: [1.9, 0.55, 0.3], shift: 0.09, shiftY: -0.1 },
-  deviceFlip: { p: [9.2, 5.8, 10.8], t: [0.3, 1.1, 0], shift: 0.07, shiftY: -0.1 },
+  device: { p: [10.5, 6.1, 12.4], t: [0.3, 0.8, 0], shift: 0.13, shiftY: -0.08 },
+  deviceTall: { p: [11.5, 7.2, 14.5], t: [0.3, 1.5, 0], shift: 0.13, shiftY: -0.06 },
+  deviceClose: { p: [12.8, 3.9, 8.9], t: [1.9, 0.55, 0.3], shift: 0.15, shiftY: -0.08 },
+  deviceFlip: { p: [10.5, 6.5, 12.4], t: [0.3, 1.1, 0], shift: 0.13, shiftY: -0.08 },
   tool: {
     siemens: cam([4.5, 4.2, 13], [0.3, 2.4, 0]),
     cz: cam([5, 4.6, 15], [0.3, 3.1, 0]),
@@ -33,7 +34,7 @@ export const VIEW = {
     probe: cam([4.5, 4, 11.5], [0.2, 1.8, 0]),
     dice: cam([4.5, 5, 11.5], [0.2, 1.4, 0]),
     pack: cam([5, 4.4, 11], [0.2, 2.0, 0]),
-    test: cam([4.5, 4, 11], [0.2, 1.8, 0]),
+    test: cam([4.5, 4, 12.5], [0.2, 1.8, 0], { shift: 0.24 }),
   },
   close: {
     siemens: close([2.4, 2.8, 7], [0.3, 2.2, 0]),
@@ -53,7 +54,7 @@ export const VIEW = {
     test: close([2.4, 2.6, 6], [0.2, 1.6, 0.2]),
   },
 };
-export const HERO_CAM = cam([6.5, 7.5, 17], [0, 0.8, 0], { shift: 0.2, shiftY: 0 });
+export const HERO_CAM = cam([4.6, 5.2, 12], [0, 0.8, 0], { shift: 0.2, shiftY: 0 });
 
 export const TOOL_LABELS = {
   siemens: [['QUARTZ BELL JAR', B(1.55, 3.6, 0)], ['POLYSILICON RODS · 1100 °C', B(0.75, 2.6, 0.3)], ['SiHCl₃ + H₂ INLET', B(-1.3, 0.35, 0.8), 'd']],

@@ -11,6 +11,7 @@ readouts, equations and plots, and ends in a virtual instrument.
 | `tem.html` | Transmission electron microscopy (12 stages) | Virtual TEM: phase-object simulation with a live CTF |
 | `xrd.html` | X-ray diffraction (10 stages) | Virtual diffractometer: structure-factor patterns, Williamson–Hall |
 | `semiconductor.html` | Semiconductor characterisation (10 stages) | Virtual probe station: 4PP + Hall, MOS C–V, p–n I–V |
+| `fab.html` | Standalone: one wafer through a 2 nm-class nanosheet process with backside power, sand to packaged chip (25 stages, tool and device views, wafer passport, defect callouts) | Virtual lithography, cross-section replay, node comparison |
 
 ## Run
 
@@ -35,6 +36,7 @@ Pushing to `main` builds and deploys `dist/` with the workflow in `.github/workf
 | `src/tem/` | TEM stages, column scene, FFT image simulation, virtual TEM |
 | `src/xrd/` | XRD stages, goniometer scene, pattern calculation, virtual diffractometer |
 | `src/semi/` | Semiconductor stages, probe-station scene, device physics, virtual probe station |
+| `src/fab/` | Wafer journey: device build and tool models, stage data and passport, lithography lab |
 | `src/physics.js`, `src/plots.js` | Shared constants, electron-optics formulas and canvas plots |
 
 Beam widths, scan amplitudes, slit openings and device cross-sections in the 3D views are

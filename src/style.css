@@ -258,3 +258,17 @@ footer a { color: inherit; }
 .xs-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 14px; font: 400 10.5px var(--mono); color: var(--dim); text-transform: uppercase; letter-spacing: .05em; }
 .xs-legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
 @media (max-width: 819px) { .xs-row { grid-template-columns: 1fr; } .stage-text .watch { display: none; } }
+
+/* denser text column for the wafer journey (callout box adds height) */
+@media (min-width: 820px) { .m-fab .stage-text { width: min(430px, 37vw); padding: 72px 0 24px; } }
+.m-fab .stage-text h2 { font-size: clamp(30px, 3vw, 46px); }
+.hud-pass b { display: block; line-height: 1.25; }
+.m-fab .kicker { margin-bottom: 12px; }
+.m-fab .copy { margin-top: 14px; font-size: 15.5px; line-height: 1.45; }
+.m-fab .points { margin-top: 16px; }
+.m-fab .points li { padding: 7px 0 8px; }
+.m-fab .points em { font-size: 13.5px; }
+.m-fab .watch { margin-top: 12px; gap: 6px; }
+.m-fab .watch p { font-size: 13px; }
+.m-fab .see { margin-top: 10px; }
+@media (max-height: 820px) { .m-fab .points em { display: none; } }

@@ -23,6 +23,7 @@ export function boot(cfg) {
   const STAGES = cfg.stages, N = STAGES.length;
   const me = cfg.me || MODULES.find((m) => m.key === cfg.key);
   document.documentElement.style.setProperty('--accent', me.accent);
+  document.body.classList.add(`m-${cfg.key}`);
 
   // ------------------------------------------------------------------ page
   document.body.insertAdjacentHTML('afterbegin', `
