@@ -307,6 +307,8 @@ export class FabLab {
           <figure style="margin:0;min-width:0"><canvas class="n-chart" style="width:100%;height:230px;display:block"></canvas><figcaption class="vs-cap">Logic transistor density; band = spread between sources</figcaption></figure>
         </div>
       </div>`;
+    // keep the sticky screen inside the lithography row so it cannot slide over the blocks below
+    { const main = document.createElement('div'); main.className = 'vs-main'; root.prepend(main); main.append(root.querySelector('.vs-screen'), root.querySelector('.vs-controls')); }
     const q = (s) => root.querySelector(s);
     this.cAer = q('.l-aer'); this.cTop = q('.l-top'); this.topCap = q('.l-topcap'); this.status = q('.vs-status');
     this.xs = q('.xs-canvas'); this.xsIn = q('#xs-step'); this.xsOut = q('.xs-out'); this.xsTitle = q('.xs-step'); this.xsDesc = q('.xs-desc'); this.playBtn = q('.xs-play'); this.chart = q('.n-chart');

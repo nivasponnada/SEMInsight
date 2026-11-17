@@ -21,6 +21,7 @@ export class Scene3D {
     this.camPos = V3(10, 7, 24); this.camTgt = V3(0, 4, 0);
     this.camera.position.copy(this.camPos);
     this.pointer = { x: 0, y: 0 };
+    this.orbit = { yaw: 0, pitch: 0, tYaw: 0, tPitch: 0 }; // user drag-to-orbit, eased; targets set by the engine
     this.params = {};
     this.shift = 0.15; this.shiftY = 0;
     this.time = 0;
@@ -192,7 +193,16 @@ export class Scene3D {
     const pull = this.camera.aspect < 1 ? 1 + (1 - this.camera.aspect) * 1.1 : 1;
     const off = this.camPos.clone().sub(this.camTgt).multiplyScalar(pull);
     const sway = this.reduced ? 0 : (P.closed || 0) * 0.35 * Math.sin(this.time * 0.35) + this.pointer.x * 0.06;
-    off.applyAxisAngle(V3(0, 1, 0), sway);
+    // user orbit: wrap yaw so easing home takes the short way round
+    const o = this.orbit, ko = 1 - Math.exp(-dt * 9);
+    if (o.tYaw === 0 && Math.abs(o.yaw) > Math.PI) o.yaw -= Math.round(o.yaw / TAU) * TAU;
+    o.yaw += (o.tYaw - o.yaw) * ko; o.pitch += (o.tPitch - o.pitch) * ko;
+    if (Math.abs(o.pitch) > 1e-4) {
+      const right = V3(0, 1, 0).cross(off).normalize();
+      const elev = Math.asin(Math.min(1, Math.max(-1, off.y / off.length())));
+      off.applyAxisAngle(right, -(Math.min(1.35, Math.max(-0.15, elev + o.pitch)) - elev));
+    }
+    off.applyAxisAngle(V3(0, 1, 0), sway + o.yaw);
     this.camera.position.copy(this.camTgt).add(off);
     this.camera.position.y += this.pointer.y * -0.02 * off.length();
     this.camera.lookAt(this.camTgt);

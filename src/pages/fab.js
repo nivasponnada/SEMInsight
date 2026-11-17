@@ -28,6 +28,8 @@ boot({
     foot: 'Model: one-dimensional binary line/space mask with scalar, partially coherent imaging; no mask-3D effects or flare. The resist is a Gaussian blur plus a threshold, and the only noise source is photon shot noise, so line-edge roughness is optimistic. Thresholds and absorbed fractions are representative values. The cross-section replay is not flipped after bonding. The process flow throughout is a generic reconstruction from public papers and roadmaps, not any company’s recipe.',
     mount: (el) => new FabLab(el),
   },
+  // device cross-section views (second view at the origin, not in the tool bay) can be rotated by dragging
+  orbit: (idx, view, local, S) => !!S.cam2 && Math.hypot(S.cam2.t[0], S.cam2.t[2]) < 8 && local > 0.63 && local < 0.82,
   passport: (idx) => { const p = PASSPORT[idx]; return cell('Steps', p.steps) + cell('Masks', p.masks) + cell('Days', p.days) + cell('Feature', p.feature); },
   refs: [
     'IEEE International Roadmap for Devices and Systems (IRDS), <i>More Moore</i> chapter, 2023 edition.',

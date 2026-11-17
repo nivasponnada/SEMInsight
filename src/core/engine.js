@@ -134,7 +134,7 @@ export function boot(cfg) {
   const PARAMS = [...new Set(KEYS.flatMap((k) => [...Object.keys(k.s || {}), ...Object.keys(k.s2 || {})]))];
 
   const labelLayer = $('#labels');
-  const labelEls = STAGES.map((s) => [...(s.labels || []).map((l) => [...l.slice(0, 3), s.cam2 ? 0 : -1]), ...(s.labels2 || []).map((l) => [...l.slice(0, 3), 1])].map(([text, pos, dir, view]) => {
+  const labelEls = STAGES.map((s) => [...(s.labels || []).map((l) => [l[0], l[1], l[2], s.cam2 ? 0 : -1]), ...(s.labels2 || []).map((l) => [l[0], l[1], l[2], 1])].map(([text, pos, dir, view]) => {
     const el = document.createElement('div'); el.className = 'lab' + (pos[0] < (s.labelSplit ?? -0.2) ? ' l' : '') + (dir ? ' d' : ''); el.style.setProperty('--accent', s.accent);
     el.innerHTML = `<i></i><span>${text}</span>`; labelLayer.appendChild(el); return { el, pos, on: false, view };
   }));
@@ -200,11 +200,31 @@ export function boot(cfg) {
   }
   addEventListener('resize', measure);
   addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') { scene.pointer.x = e.clientX / innerWidth - 0.5; scene.pointer.y = e.clientY / innerHeight - 0.5; } });
+  // drag-to-orbit on views that allow it (cfg.orbit); horizontal drag = yaw, vertical (mouse/pen) = pitch
+  const glEl = $('#gl');
+  const orbit = { ok: false, drag: null, used: false };
+  document.body.insertAdjacentHTML('beforeend', '<div id="orbit-hint" aria-hidden="true"><i></i>Drag to rotate</div>');
+  const hintEl = $('#orbit-hint');
+  glEl.addEventListener('pointerdown', (e) => {
+    if (!orbit.ok || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    orbit.drag = { x: e.clientX, y: e.clientY, id: e.pointerId }; orbit.used = true;
+    try { glEl.setPointerCapture(e.pointerId); } catch {}
+    glEl.classList.add('grabbing');
+  });
+  glEl.addEventListener('pointermove', (e) => {
+    const d = orbit.drag; if (!d || d.id !== e.pointerId) return;
+    scene.orbit.tYaw -= (e.clientX - d.x) * 0.0065;
+    if (e.pointerType !== 'touch') scene.orbit.tPitch = clamp(scene.orbit.tPitch + (e.clientY - d.y) * 0.004, -0.45, 0.6);
+    d.x = e.clientX; d.y = e.clientY;
+  });
+  const endDrag = () => { orbit.drag = null; glEl.classList.remove('grabbing'); };
+  glEl.addEventListener('pointerup', endDrag); glEl.addEventListener('pointercancel', endDrag); glEl.addEventListener('lostpointercapture', endDrag);
 
   const state = { cam: { p: [0, 0, 0], t: [0, 0, 0] }, params: {}, front: 99, f: 0, t: 0, idx: 0, shift: 0.15, shiftY: 0, env };
   const proj = { x: 0, y: 0, vis: false };
   const labEl = $('#lab'), top = $('#top');
   let lastT = performance.now(), passHTML = '';
+  const mobileNoOrbit = false;
   const passEl = $('.hud-pass');
 
   function frame(now) {
@@ -238,6 +258,11 @@ export function boot(cfg) {
     if (inJourney) updateHud(idx, f);
     if (cfg.passport && inJourney) { const h = cfg.passport(idx, f); if (h !== passHTML) { passHTML = h; passEl.innerHTML = h; passEl.hidden = false; } }
     hooks?.frame?.({ t, idx, f, env, scene, N });
+    // orbit is offered only while an allowed view is at rest; otherwise the camera eases back
+    const orbOk = !!cfg.orbit && inJourney && !mobileNoOrbit && cfg.orbit(idx, state.view, local, S);
+    if (orbOk !== orbit.ok) { orbit.ok = orbOk; glEl.classList.toggle('orbit', orbOk); if (!orbOk) { endDrag(); orbit.used = false; } }
+    if (!orbOk) { scene.orbit.tYaw = 0; scene.orbit.tPitch = 0; }
+    hintEl.classList.toggle('show', orbOk && !orbit.used);
 
     const r = labEl.getBoundingClientRect();
     const covered = r.top < 0 && r.bottom > vh; // the lab section fully hides the canvas
@@ -245,13 +270,19 @@ export function boot(cfg) {
       scene.update(state, dt);
       scene.render();
       const hold = 1 - smooth(clamp(Math.abs(t - idx - 0.5) / 0.42));
+      // two-view stages: each label set shows only while its own view is at rest
+      // (camera arrives at 0.2, moves to the second view over 0.36–0.64, leaves at 0.8)
+      const lw0 = smooth(clamp((local - 0.17) / 0.05)) * smooth(clamp((0.375 - local) / 0.035));
+      const lw1 = smooth(clamp((local - 0.625) / 0.035)) * smooth(clamp((0.85 - local) / 0.06));
       labelEls.forEach((set, i) => set.forEach((L) => {
-        const vw = L.view < 0 ? 1 : L.view === 0 ? 1 - smooth(clamp(state.view * 2.5)) : smooth(clamp((state.view - 0.6) * 2.5));
-        const on = i === idx && inJourney && hold * vw > 0.05;
+        const lw = L.view < 0 ? hold : L.view === 0 ? lw0 : lw1;
+        const vw = 1;
+        const hold_ = lw;
+        const on = i === idx && inJourney && lw > 0.03;
         if (on) {
           scene.project(L.pos, proj);
           L.el.style.transform = `translate(${proj.x.toFixed(1)}px, ${proj.y.toFixed(1)}px)`;
-          L.el.style.opacity = proj.vis ? hold * vw : 0;
+          L.el.style.opacity = proj.vis ? (hold_ * vw).toFixed(3) : 0;
         } else if (L.on) L.el.style.opacity = 0;
         L.on = on;
       }));
