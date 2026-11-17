@@ -42,10 +42,10 @@ export const VIEW = {
     cz: close([2.6, 2.6, 7], [0.3, 1.9, 0]),
     saw: close([2.4, 3.2, 6.5], [0.2, 2.3, 0.3]),
     wafer: close([1.5, 2.2, 5.5], [0.6, 1.05, 0.8]),
-    dep: close([2.7, 3.0, 6.8], [1.9, 2.4, 0.4]),
+    dep: close([2.3, 3.0, 6.8], [1.5, 2.4, 0.4]),
     euv: close([3.0, 3.2, 9.0], [1.9, 2.5, 0]),
-    etch: close([2.7, 3.0, 6.8], [1.9, 2.4, 0.4]),
-    cmp: close([2.6, 3.2, 7.0], [1.5, 2.0, 0.5]),
+    etch: close([2.3, 3.0, 6.8], [1.5, 2.4, 0.4]),
+    cmp: close([2.4, 3.2, 7.2], [1.3, 2.0, 0.6]),
     bond: close([2.4, 2.2, 6.4], [0.3, 1.4, 0.3]),
     grind: close([2.6, 2.6, 6.4], [0.6, 1.45, 0.2]),
     insp: close([2.4, 2.2, 6], [0.3, 1.5, 0.2]),
@@ -62,10 +62,10 @@ export const TOOL_LABELS = {
   cz: [['SEED + PULL ROD', B(0.05, 5.6, 0)], ['GROWING INGOT', B(0.55, 3.0, 0)], ['MOLTEN SILICON · 1414 °C', B(0.9, 1.6, 0)], ['GRAPHITE HEATER', B(1.6, 1.2, 0), 'd']],
   saw: [['INGOT', B(1.6, 2.6, 0.9)], ['DIAMOND WIRE WEB', B(-0.6, 3.25, 1.7)], ['WIRE GUIDE', B(2.0, 3.2, -1.9)]],
   wafer: [['300 mm · 775 µm', B(2.1, 1.05, 2.1)], ['ORIENTATION NOTCH', B(0, 1.05, 3.0), 'd']],
-  dep: [['SHOWERHEAD', B(-1.7, 2.7, 0)], ['PRECURSOR GAS', B(-0.6, 2.0, 0)], ['WAFER ON HEATED PEDESTAL', B(-1.5, 1.04, 0), 'd'], ['SURFACE, MAGNIFIED', B(2.9, 3.95, 0.9)]],
+  dep: [['SHOWERHEAD', B(-1.7, 2.7, 0)], ['PRECURSOR GAS', B(-0.6, 2.0, 0)], ['WAFER ON HEATED PEDESTAL', B(-1.5, 1.04, 0), 'd'], ['SURFACE, MAGNIFIED', B(2.45, 3.92, 0.9)]],
   euv: [['TIN PLASMA + COLLECTOR MIRROR', B(-3.6, 1.2, 0), 'd'], ['INTERMEDIATE FOCUS', B(-1.85, 1.2, 0)], ['ILLUMINATOR MIRRORS', B(-1.5, 3.3, 0)], ['REFLECTIVE RETICLE', B(0.9, 5.2, 0)], ['WAFER STAGE', B(3.2, 0.66, 0), 'd']],
-  etch: [['INDUCTIVE COIL', B(-2.45, 2.9, 0)], ['PLASMA', B(-0.6, 1.9, 0)], ['BIASED CHUCK', B(-1.6, 0.8, 0), 'd'], ['SURFACE, MAGNIFIED', B(2.9, 3.95, 0.9)]],
-  cmp: [['CARRIER HEAD ON ITS SPINDLE', B(0.9, 1.9, 0.3)], ['PAD ON ROTATING PLATEN', B(1.4, 1.22, 1.9), 'd'], ['SLURRY NOZZLE', B(-1.0, 2.35, -0.4)], ['PAD CONDITIONER', B(-0.1, 1.36, -1.45)]],
+  etch: [['INDUCTIVE COIL', B(-2.45, 2.9, 0)], ['PLASMA', B(-0.6, 1.9, 0)], ['BIASED CHUCK', B(-1.6, 0.8, 0), 'd'], ['SURFACE, MAGNIFIED', B(2.45, 3.92, 0.9)]],
+  cmp: [['CARRIER HEAD ON ITS SPINDLE', B(0.9, 1.9, 0.3)], ['PAD ON ROTATING PLATEN', B(1.4, 1.22, 1.9), 'd'], ['SLURRY PIPE AND NOZZLE', B(-1.0, 2.35, -0.4)], ['PAD CONDITIONER', B(-0.9, 1.36, 1.5), 'd']],
   bond: [['CARRIER WAFER', B(1.9, 2.6, 0.9)], ['DEVICE WAFER', B(2.0, 1.06, 0.9), 'd']],
   grind: [['GRINDING WHEEL', B(1.9, 1.75, 0.6)], ['DEVICE WAFER, BACK UP', B(-1.2, 1.3, 1.7), 'd'], ['CARRIER', B(2.1, 1.05, 0.8), 'd']],
   insp: [['ELECTRON COLUMN', B(0.55, 3.4, 0)], ['SCANNED BEAM', B(0.03, 1.7, 0)], ['WAFER STAGE', B(2.0, 1.04, 1.0), 'd']],
@@ -79,10 +79,10 @@ export const CLOSE_LABELS = {
   cz: [['MENISCUS · GROWTH FRONT', B(0.55, 1.62, 0)], ['QUARTZ CRUCIBLE', B(1.25, 1.3, 0), 'd']],
   saw: [['WIRE · 60–100 µm', B(0.3, 2.9, 0.9)], ['KERF LOSS', B(0.9, 2.2, 0.9), 'd']],
   wafer: [['MIRROR POLISH · Ra < 0.1 nm', B(0.6, 1.05, 0.9)]],
-  dep: [['WHAT THE WAFER SURFACE SEES', B(2.9, 3.95, 0.9)], ['WAFER', B(1.3, 1.05, 0.2), 'd']],
+  dep: [['WHAT THE WAFER SURFACE SEES', B(2.45, 3.92, 0.9)], ['WAFER', B(1.3, 1.05, 0.2), 'd']],
   euv: [['SIX PROJECTION MIRRORS', B(2.9, 3.1, 0)], ['FINAL MIRROR FOCUSES THE CONE', B(1.2, 1.55, 0)], ['FOCUS ON THE RESIST', B(2.3, 0.71, 0), 'd']],
-  etch: [['WHAT THE WAFER SURFACE SEES', B(2.9, 3.95, 0.9)], ['WAFER', B(1.3, 1.05, 0.2), 'd']],
-  cmp: [['WAFER, FACE DOWN', B(0.9, 1.32, 1.2), 'd'], ['WHAT THE PAD DOES', B(2.9, 4.15, 1.2)]],
+  etch: [['WHAT THE WAFER SURFACE SEES', B(2.45, 3.92, 0.9)], ['WAFER', B(1.3, 1.05, 0.2), 'd']],
+  cmp: [['WAFER, FACE DOWN', B(0.9, 1.32, 1.2), 'd'], ['WHAT THE PAD DOES', B(2.2, 3.63, 1.3)]],
   bond: [['OXIDE-TO-OXIDE CONTACT', B(0.4, 1.1, 1.0), 'd']],
   grind: [['SILICON REMOVED', B(0.9, 1.4, 0.9), 'd']],
   insp: [['SECONDARY ELECTRONS TO DETECTOR', B(0.45, 1.5, 0.2)], ['DIE UNDER INSPECTION', B(0.03, 1.05, 0.05), 'd']],
@@ -327,7 +327,7 @@ export class FabScene extends Scene3D {
     const lm = this._glow(0xffa24a, 2.2, 0x402010);
     for (let i = -3; i <= 3; i++) this._rod(V3(i * 0.48, 3.06, -1.55), V3(i * 0.48, 3.06, -0.02), 0.07, lm, this.lamps, 12);
     this.depLight = new THREE.PointLight(0xff7a30, 0, 6); this.depLight.position.set(0, 2.2, 1.0); g.add(this.depLight);
-    this.depInset = this._inset(g, [2.9, 3.1, 0.9], [0.9, 1.07, 0.3]);
+    this.depInset = this._inset(g, [2.45, 3.25, 0.9], [0.9, 1.07, 0.3], 2.0);
   }
   _etch() {
     const g = this.tool.etch, M = this.M; this._chamber(g);
@@ -337,7 +337,7 @@ export class FabScene extends Scene3D {
     this.ions = this._pts(g, 160, 0xffd0ff, 0.045);
     this.ions.st.forEach((p) => { p.u = Math.random(); p.x = (Math.random() - 0.5) * 2.9; p.z = -Math.random() * 1.4 + 0.15; p.sp = 0.9 + Math.random() * 0.6; p.ph = Math.random() * TAU; });
     this.eLight = new THREE.PointLight(0xd070ff, 1.6, 6); this.eLight.position.set(0, 1.9, 1.0); g.add(this.eLight);
-    this.etchInset = this._inset(g, [2.9, 3.1, 0.9], [0.9, 1.07, 0.3]);
+    this.etchInset = this._inset(g, [2.45, 3.25, 0.9], [0.9, 1.07, 0.3], 2.0);
   }
   _euv() {
     const g = this.tool.euv, M = this.M, XC = 0xb08cff, N = (x, y) => V3(x, y, 0);
@@ -433,15 +433,15 @@ export class FabScene extends Scene3D {
     this.drops = this._pts(g, 14, 0xe8f0ff, 0.07); this.drops.st.forEach((p, i) => { p.u = i / 14; });
     this.slurry = this._pts(g, 120, 0xe8f0ff, 0.05); this.slurry.st.forEach((p) => { p.age = Math.random() * 3; p.j = Math.random(); });
     // pad conditioner: small diamond disc on its own swing arm
-    this._rod(V3(0.4, 0.1, -3.0), V3(0.4, 2.05, -3.0), 0.1, M.body, g);
-    const ca = (this.condArm = new THREE.Group()); ca.position.set(0.4, 0, -3.0); g.add(ca);
+    this._rod(V3(-1.2, 0.1, 2.95), V3(-1.2, 2.05, 2.95), 0.1, M.body, g);
+    const ca = (this.condArm = new THREE.Group()); ca.position.set(-1.2, 0, 2.95); g.add(ca);
     this._disc(ca, 0.16, 0.2, M.iron, [0, 2.0, 0]);
-    this._rod(V3(0, 2.0, 0), V3(-0.5, 2.0, 1.55), 0.07, M.body, ca);
-    this._rod(V3(-0.5, 2.0, 1.55), V3(-0.5, 1.36, 1.55), 0.05, M.steel, ca);
-    this.cond = new THREE.Group(); this.cond.position.set(-0.5, 0, 1.55); ca.add(this.cond);
+    this._rod(V3(0, 2.0, 0), V3(0.3, 2.0, -1.45), 0.07, M.body, ca);
+    this._rod(V3(0.3, 2.0, -1.45), V3(0.3, 1.36, -1.45), 0.05, M.steel, ca);
+    this.cond = new THREE.Group(); this.cond.position.set(0.3, 0, -1.45); ca.add(this.cond);
     this._disc(this.cond, 0.4, 0.1, M.steel, [0, 1.3, 0]); this._disc(this.cond, 0.41, 0.03, this._std(0x2a2a2e, { roughness: 1, metalness: 0.2 }), [0, 1.235, 0]);
     this._box(0.3, 0.02, 0.07, M.copper, [0.2, 1.36, 0], this.cond);
-    this.cmpInset = this._inset(g, [2.9, 3.3, 1.2], [1.6, 1.24, 0.9]);
+    this.cmpInset = this._inset(g, [2.2, 3.0, 1.3], [1.75, 1.24, 0.9], 1.9);
   }
   _bond() {
     const g = this.tool.bond, M = this.M;
